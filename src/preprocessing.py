@@ -80,8 +80,26 @@ def sample_points_with_normals(
 
 
 def to_tensor_points(points: np.ndarray) -> torch.Tensor:
+    """
+    Convert point features to a PyTorch float tensor.
+
+    Args:
+        points: numpy array of point features, typically shape (N, 3) or (N, 6)
+
+    Returns:
+        PyTorch tensor of type float32
+    """
     return torch.tensor(points, dtype=torch.float32)
 
 
 def to_tensor_labels(labels: np.ndarray) -> torch.Tensor:
+    """
+    Convert labels to a PyTorch long tensor.
+
+    Args:
+        labels: numpy array of labels, typically shape (N,)
+
+    Returns:
+        PyTorch tensor of type long
+    """
     return torch.tensor(labels, dtype=torch.long)
