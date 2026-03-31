@@ -1,0 +1,4 @@
+2026-03-28 05:55:19,910 - Model - INFO - PARAMETER ...
+2026-03-28 05:55:19,910 - Model - INFO - Namespace(model='pointnet_part_seg', batch_size=20, epoch=251, learning_rate=0.001, gpu='0', optimizer='Adam', log_dir='pointnet_partseg_xyz_1024_bs20', decay_rate=0.0001, npoint=1024, normal=False, step_size=20, lr_decay=0.5)
+2026-03-28 05:55:20,014 - Model - INFO - The number of training data is: 13998
+2026-03-28 05:55:20,014 - Model - INFO - The number of test data is: 2874

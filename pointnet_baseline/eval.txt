@@ -1,0 +1,26 @@
+2026-03-31 02:02:07,129 - Model - INFO - PARAMETER ...
+2026-03-31 02:02:07,130 - Model - INFO - Namespace(batch_size=24, gpu='0', num_point=2048, log_dir='pointnet_partseg_xyz_1024_bs20_test', normal=False, num_votes=3)
+2026-03-31 02:02:07,156 - Model - INFO - The number of test data is: 2874
+2026-03-31 02:05:17,035 - Model - INFO - PARAMETER ...
+2026-03-31 02:05:17,035 - Model - INFO - Namespace(batch_size=20, gpu='0', num_point=1024, log_dir='pointnet_partseg_xyz_1024_bs20_test', normal=False, num_votes=3)
+2026-03-31 02:05:17,061 - Model - INFO - The number of test data is: 2874
+2026-03-31 02:06:14,503 - Model - INFO - eval mIoU of Airplane       0.661083
+2026-03-31 02:06:14,505 - Model - INFO - eval mIoU of Bag            0.552848
+2026-03-31 02:06:14,505 - Model - INFO - eval mIoU of Cap            0.684309
+2026-03-31 02:06:14,505 - Model - INFO - eval mIoU of Car            0.557179
+2026-03-31 02:06:14,505 - Model - INFO - eval mIoU of Chair          0.830015
+2026-03-31 02:06:14,505 - Model - INFO - eval mIoU of Earphone       0.628128
+2026-03-31 02:06:14,505 - Model - INFO - eval mIoU of Guitar         0.826006
+2026-03-31 02:06:14,506 - Model - INFO - eval mIoU of Knife          0.741911
+2026-03-31 02:06:14,506 - Model - INFO - eval mIoU of Lamp           0.665753
+2026-03-31 02:06:14,506 - Model - INFO - eval mIoU of Laptop         0.876703
+2026-03-31 02:06:14,506 - Model - INFO - eval mIoU of Motorbike      0.274192
+2026-03-31 02:06:14,506 - Model - INFO - eval mIoU of Mug            0.533999
+2026-03-31 02:06:14,506 - Model - INFO - eval mIoU of Pistol         0.624559
+2026-03-31 02:06:14,506 - Model - INFO - eval mIoU of Rocket         0.411385
+2026-03-31 02:06:14,506 - Model - INFO - eval mIoU of Skateboard     0.500318
+2026-03-31 02:06:14,506 - Model - INFO - eval mIoU of Table          0.746211
+2026-03-31 02:06:14,506 - Model - INFO - Accuracy is: 0.87317
+2026-03-31 02:06:14,506 - Model - INFO - Class avg accuracy is: 0.64944
+2026-03-31 02:06:14,506 - Model - INFO - Class avg mIOU is: 0.63216
+2026-03-31 02:06:14,506 - Model - INFO - Inctance avg mIOU is: 0.72745
