@@ -209,3 +209,6 @@ __marimo__/
 
 # ShapeNet Part Dataset
 data/
+
+# Model checkpoints
+checkpoints/
