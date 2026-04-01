@@ -1,6 +1,6 @@
 For the PointNet++ baseline we used the following repo which is a PyTorch implementation of PointNet++: https://github.com/yanx27/Pointnet_Pointnet2_pytorch
 
-Training was performed in Google Colab. 
+Environment used for training/evaluation was Google Colab. 
 
 Steps followed are as follows
 - Download the ShapeNet dataset from the following link:
@@ -20,6 +20,10 @@ https://drive.usercontent.google.com/download?id=1W3SEE-dY1sxvlECcOwWSDYemwHEUbJ
 
     `!bash train_pointnet2_baseline.sh`
 
-- Training log in the notebook environment can be found at: Pointnet_Pointnet2_pytorch/log/part_seg/pointnet2_part_seg_msg_xyz_1024_bs20_train/logs/pointnet2_part_seg_msg.txt
+- Training log in the notebook environment can be found at: Pointnet_Pointnet2_pytorch/log/part_seg/pointnet2_part_seg_msg_xyz_1024_bs20/logs/pointnet2_part_seg_msg.txt
 
-The log file has been downloaded and saved as train_log.txt in this folder.
+The training log file has been downloaded and saved as train_log.txt in this folder.
+
+- Evaluation log in the notebook environment can be found at: Pointnet_Pointnet2_pytorch/log/part_seg/pointnet2_part_seg_msg_xyz_1024_bs20/eval.txt
+
+The evaluation log file has been downloaded and saved as eval_log.txt in this folder.
