@@ -50,7 +50,7 @@ def main() -> None:
     parser.add_argument("--save-path", type=str, default="checkpoints/pointnetpp_classification.pt")
     args = parser.parse_args()
 
-    device = choose_device()
+    device = choose_device(logger)
 
     category_mapping = load_category_mapping(args.data_root)
     train_list, val_list, _test_list = load_splits(args.data_root)

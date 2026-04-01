@@ -34,7 +34,7 @@ def get_logger(name: str = "logger") -> logging.Logger:
 
     return logger
 
-def choose_device()->str:
+def choose_device(logger: logging.Logger = get_logger("utils"))->str:
     if torch.backends.cuda.is_built():
         # usually on Windows machines with GPU
         device = "cuda"
@@ -44,7 +44,7 @@ def choose_device()->str:
     else:
         # if not we should use our CPU
         device = "cpu"
-    get_logger("utils").info(f"Chosen device: {device}")
+    logger.info(f"Chosen device: {device}")
     return device
 
 

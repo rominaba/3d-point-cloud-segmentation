@@ -10,8 +10,9 @@ from torch.utils.data import DataLoader
 from src.config import BATCH_SIZE, DATA_ROOT, NUM_POINTS, USE_NORMALS
 from src.dataset import ShapeNetPartDataset, load_category_mapping, load_splits
 from src.pointnetpp.part_segmentation import PointNetPPPartSeg
-from src.utils.utils import get_logger
+from src.utils.utils import get_logger, choose_device, set_seed, collect_garbage
 
+set_seed()
 logger = get_logger("train_pointnetpp_part_segmentation")
 
 def evaluate(
@@ -63,7 +64,7 @@ def main() -> None:
     parser.add_argument("--save-path", type=str, default="checkpoints/pointnetpp_part_seg.pt")
     args = parser.parse_args()
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = choose_device(logger)
 
     category_mapping = load_category_mapping(args.data_root)
     train_list, val_list, _test_list = load_splits(args.data_root)
@@ -106,6 +107,7 @@ def main() -> None:
     save_path.parent.mkdir(parents=True, exist_ok=True)
 
     for epoch in range(1, args.epochs + 1):
+        collect_garbage(device)
         model.train()
         running_loss = 0.0
         running_correct = 0
