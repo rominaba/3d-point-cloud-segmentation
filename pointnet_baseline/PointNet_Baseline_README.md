@@ -125,6 +125,7 @@ The evaluation results will also be recorded in:
 `eval.txt`
 
 These files include the main reported metrics, such as accuracy and IoU.
+
 # Explanation of metrics for PointNet part segmentation
 
 Since PointNet was used here for **3D point cloud part segmentation**, the model predicts a **part label for every point** in an object. So the main metrics measure how well the model labels points and how well the predicted parts overlap the true parts.
@@ -136,7 +137,15 @@ Since PointNet was used here for **3D point cloud part segmentation**, the model
 This is the proportion of points whose predicted part label matches the ground-truth part label during training.
 
 $$
-\text{Train Accuracy} \approx \frac{\text{number of correctly classified points}}{\text{total number of training points}}
+\text{Train Accuracy} = \frac{1}{B}\sum_{b=1}^{B}
+\frac{\text{num correct predictions in batch } b}{\text{total number of points evaluated in batch } b}
+$$
+
+where
+
+$$
+\text{total number of points evaluated in batch } b
+= \text{batch size} \times \text{num points per shape}
 $$
 
 Since each sample is a point cloud with a fixed number of points, this metric tells us how often PointNet assigns the correct part label at the point level.
@@ -148,7 +157,7 @@ This is the mean IoU for one object category, such as Airplane or Chair.
 For each valid part $p$ of that category:
 
 $$
-\text{IoU}_p = \frac{|\text{pred}_p \cap \text{gt}_p|}{|\text{pred}_p \cup \text{gt}_p|}
+\text{IoU}_p = \frac{|\text{pred}_p \cap \text{groundtruth}_p|}{|\text{pred}_p \cup \text{groundtruth}_p|}
 $$
 
 Then for one object instance:
@@ -260,7 +269,7 @@ For PointNet, these metrics tell us slightly different things:
 - **Class avg mIoU** shows whether the model performs well across all object categories fairly.
 - **Instance avg mIoU** shows the overall average segmentation quality across all test shapes.
 
-Evaluation summary
+## Evaluation summary
 
 Because PointNet performs part segmentation, the main evaluation metrics are pointwise accuracy and mean IoU. Accuracy measures how many points are labeled correctly, while mIoU measures how well the predicted parts overlap the ground-truth parts, both per category and across all instances.
 

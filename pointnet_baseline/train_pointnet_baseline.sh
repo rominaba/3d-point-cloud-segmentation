@@ -6,7 +6,6 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_DIR=${1:-pointnet-baseline-repo}
 DATASET_PATH=${2:-"$SCRIPT_DIR/../data/shapenetcore_partanno_segmentation_benchmark_v0_normal"}
 TRAIN_LOG_DIR=${3:-pointnet_partseg_xyz_1024_bs20_train}
-EVAL_LOG_DIR=${4:-pointnet_partseg_xyz_1024_bs20_eval}
 
 # -------- SETUP --------
 if [ ! -d "$DATASET_PATH" ]; then
@@ -29,10 +28,9 @@ cd "$REPO_DIR"
 pip install torch torchvision torchaudio numpy h5py matplotlib tqdm
 
 # -------- PATCH DATASET PATHS --------
-sed -i '' "s#data/shapenetcore_partanno_segmentation_benchmark_v0_normal#$DATASET_PATH#g" train_partseg.py
-sed -i '' "s#data/shapenetcore_partanno_segmentation_benchmark_v0_normal#$DATASET_PATH#g" test_partseg.py
-sed -i '' "s#data/shapenetcore_partanno_segmentation_benchmark_v0_normal#$DATASET_PATH#g" data_utils/ShapeNetDataLoader.py
-
+sed -i '' "s#root = 'data/shapenetcore_partanno_segmentation_benchmark_v0_normal/'#root = '$DATASET_PATH/'#" train_partseg.py
+sed -i '' "s#root = 'data/shapenetcore_partanno_segmentation_benchmark_v0_normal/'#root = '$DATASET_PATH/'#" test_partseg.py
+sed -i '' "s#root = '\./data/shapenetcore_partanno_segmentation_benchmark_v0_normal'#root = '$DATASET_PATH'#" data_utils/ShapeNetDataLoader.py
 # -------- PATCH NUMPY DEPRECATION --------
 sed -i '' 's/np.float/float/g' train_partseg.py
 sed -i '' 's/np.float/float/g' test_partseg.py
