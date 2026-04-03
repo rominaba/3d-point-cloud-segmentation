@@ -83,12 +83,7 @@ s = s.replace(
 
 s = s.replace(
     "seg_pred, trans_feat = classifier(points, to_categorical(label, num_classes).cuda())",
-    "seg_pred, trans_feat = classifier(points, to_categorical(label, num_classes))"
-)
-
-s = s.replace(
-    "seg_pred, trans_feat = classifier(points, to_categorical(label, num_classes))",
-    "seg_pred, trans_feat = classifier(points, to_categorical(label, num_classes))"
+    "seg_pred, trans_feat = classifier(points, to_categorical(label, num_classes).to(device))"
 )
 
 if "def to_categorical(y, num_classes):\n    return torch.eye(num_classes, device=y.device)[y, :]" not in s:
@@ -148,7 +143,12 @@ s = s.replace(
 
 s = s.replace(
     "seg_pred, _ = classifier(points, to_categorical(label, num_classes).cuda())",
-    "seg_pred, _ = classifier(points, to_categorical(label, num_classes))"
+    "seg_pred, _ = classifier(points, to_categorical(label, num_classes).to(device))"
+)
+
+s = s.replace(
+    "vote_pool = torch.zeros(target.size()[0], target.size()[1], num_part).cuda()",
+    "vote_pool = torch.zeros(target.size()[0], target.size()[1], num_part, device=device)"
 )
 
 if "def to_categorical(y, num_classes):\n    return torch.eye(num_classes, device=y.device)[y, :]" not in s:

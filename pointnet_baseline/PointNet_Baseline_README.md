@@ -125,6 +125,144 @@ The evaluation results will also be recorded in:
 `eval.txt`
 
 These files include the main reported metrics, such as accuracy and IoU.
+# Explanation of metrics for PointNet part segmentation
+
+Since PointNet was used here for **3D point cloud part segmentation**, the model predicts a **part label for every point** in an object. So the main metrics measure how well the model labels points and how well the predicted parts overlap the true parts.
+
+## Training log
+
+### Train accuracy
+
+This is the proportion of points whose predicted part label matches the ground-truth part label during training.
+
+$$
+\text{Train Accuracy} \approx \frac{\text{number of correctly classified points}}{\text{total number of training points}}
+$$
+
+Since each sample is a point cloud with a fixed number of points, this metric tells us how often PointNet assigns the correct part label at the point level.
+
+### eval mIoU of {shape}
+
+This is the mean IoU for one object category, such as Airplane or Chair.
+
+For each valid part $p$ of that category:
+
+$$
+\text{IoU}_p = \frac{|\text{pred}_p \cap \text{gt}_p|}{|\text{pred}_p \cup \text{gt}_p|}
+$$
+
+Then for one object instance:
+
+$$
+\text{mIoU}(\text{instance}) = \frac{1}{P}\sum_{p=1}^{P} \text{IoU}_p
+$$
+
+where $P$ is the number of parts for that shape category.
+
+Then for a shape category:
+
+$$
+\text{eval mIoU of shape} = \text{average of instance mIoUs for that category}
+$$
+
+So for example, **eval mIoU of Chair** means the average part-segmentation IoU over all chair objects in the evaluation set.
+
+A common convention in this repo is that if a part is absent in both prediction and ground truth, its IoU is taken as $1.0$.
+
+### Epoch X test Accuracy
+
+This is the pointwise accuracy on the validation/test split at the end of that epoch.
+
+$$
+\text{Test Accuracy} = \frac{\text{total correctly predicted points}}{\text{total evaluated points}}
+$$
+
+It measures overall point classification correctness, but it does not capture part overlap quality as well as IoU does.
+
+### Class avg mIoU
+
+This averages the category-level mIoUs equally across all object categories.
+
+$$
+\text{Class Avg mIoU} = \frac{1}{C}\sum_{c=1}^{C} \text{mIoU}_c
+$$
+
+where $C$ is the number of object categories and $\text{mIoU}_c$ is the average instance mIoU for category $c$.
+
+This metric treats each category equally, so categories with fewer samples still matter just as much as categories with many samples.
+
+### Instance avg mIoU
+
+This averages mIoU over all individual object instances, regardless of category.
+
+$$
+\text{Instance Avg mIoU} = \frac{1}{N}\sum_{i=1}^{N} \text{mIoU}_i
+$$
+
+where $N$ is the total number of object instances.
+
+This reflects overall segmentation quality across the whole dataset, but categories with more samples have more influence.
+
+### Best accuracy
+
+The highest test accuracy achieved so far across epochs.
+
+### Best class avg mIoU
+
+The highest class average mIoU achieved so far across epochs.
+
+### Best instance avg mIoU
+
+The highest instance average mIoU achieved so far across epochs.
+
+---
+
+## Test / evaluation log
+
+The evaluation script reports the same segmentation metrics, but now on the test set only.
+
+### eval mIoU of {shape}
+
+Same definition as above: average instance mIoU for that object category.
+
+### Accuracy
+
+Overall pointwise test accuracy:
+
+$$
+\text{Accuracy} = \frac{\text{total correctly predicted points}}{\text{total tested points}}
+$$
+
+### Class avg mIoU
+
+Same as above:
+
+$$
+\text{Class Avg mIoU} = \frac{1}{C}\sum_{c=1}^{C} \text{mIoU}_c
+$$
+
+### Instance avg mIoU
+
+Same as above:
+
+$$
+\text{Instance Avg mIoU} = \frac{1}{N}\sum_{i=1}^{N} \text{mIoU}_i
+$$
+
+---
+
+## Interpretation for PointNet
+
+For PointNet, these metrics tell us slightly different things:
+
+- **Accuracy** tells us how many individual points were labeled correctly.
+- **IoU / mIoU** tells us how well the predicted parts overlap the true parts, which is usually more informative for segmentation.
+- **Class avg mIoU** shows whether the model performs well across all object categories fairly.
+- **Instance avg mIoU** shows the overall average segmentation quality across all test shapes.
+
+Evaluation summary
+
+Because PointNet performs part segmentation, the main evaluation metrics are pointwise accuracy and mean IoU. Accuracy measures how many points are labeled correctly, while mIoU measures how well the predicted parts overlap the ground-truth parts, both per category and across all instances.
 
 ## Summary
 
