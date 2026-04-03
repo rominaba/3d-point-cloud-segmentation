@@ -1,0 +1,24 @@
+Using device: mps
+PARAMETER ...
+Namespace(batch_size=20, gpu='0', num_point=1024, log_dir='pointnet_partseg_xyz_1024_bs20_train', normal=False, num_votes=3)
+The number of test data is: 2874
+eval mIoU of Airplane       0.689614
+eval mIoU of Bag            0.684344
+eval mIoU of Cap            0.673348
+eval mIoU of Car            0.376447
+eval mIoU of Chair          0.839193
+eval mIoU of Earphone       0.675564
+eval mIoU of Guitar         0.814128
+eval mIoU of Knife          0.787880
+eval mIoU of Lamp           0.720523
+eval mIoU of Laptop         0.865734
+eval mIoU of Motorbike      0.265027
+eval mIoU of Mug            0.798358
+eval mIoU of Pistol         0.605234
+eval mIoU of Rocket         0.449642
+eval mIoU of Skateboard     0.583445
+eval mIoU of Table          0.751242
+Accuracy is: 0.87460
+Class avg accuracy is: 0.65629
+Class avg mIOU is: 0.66123
+Inctance avg mIOU is: 0.73532
