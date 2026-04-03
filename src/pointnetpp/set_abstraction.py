@@ -1,7 +1,7 @@
 """
 PointNet++ Set Abstraction layers for PointNet++-style feature learning.
 
-This file provides a simple downsampling + local feature extraction layer built
+A simple downsampling + local feature extraction layer built
 on top of the MultiResolutionPointNetLocal module.
 """
 
@@ -18,10 +18,10 @@ class SetAbstractionMRG(nn.Module):
     """
     Downsample points with FPS, then extract features at the centroids using MRG.
 
-    Input point tensor has shape ``(B, N, C)`` where the first 3 channels are XYZ.
+    Input point tensor has shape (B, N, C) where the first 3 channels are XYZ.
     Output:
-      - new_xyz: ``(B, S, 3)``
-      - new_features: ``(B, S, out_channels)``
+      - new_xyz: (B, S, 3)
+      - new_features: (B, S, out_channels)
     """
 
     def __init__(

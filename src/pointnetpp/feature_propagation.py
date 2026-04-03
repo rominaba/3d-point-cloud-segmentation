@@ -1,8 +1,8 @@
 """
 PointNet++ Feature Propagation (upsampling) layer.
 
-Given coarse features at ``xyz_coarse`` and optionally fine skip features at
-``xyz_fine``, this layer interpolates coarse features onto fine points using
+Given coarse features at xyz_coarse and optionally fine skip features at
+xyz_fine, this layer interpolates coarse features onto fine points using
 inverse-distance weights, then applies a shared MLP on the concatenated vector.
 """
 

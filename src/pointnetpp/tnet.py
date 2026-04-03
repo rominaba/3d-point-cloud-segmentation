@@ -39,9 +39,9 @@ class InputTNet(nn.Module):
         in_channels: Per-point input dimension (e.g. 3 for xyz).
         matrix_dim: Side length of the output matrix (e.g. 3 for 3×3).
         conv_dims: Three output channel widths for the 1×1 conv stack
-            (default ``(64, 128, 1024)``, as in PointNet).
+            (default (64, 128, 1024), as in PointNet).
         fc_dims: Two hidden sizes for the MLP after max-pooling
-            (default ``(512, 256)``).
+            (default (512, 256)).
     """
 
     def __init__(
@@ -119,10 +119,10 @@ class FeatureTNet(nn.Module):
 
     Args:
         in_channels: Feature dimension per point (first conv input).
-        matrix_dim: Side length of the output matrix. Defaults to ``in_channels``
+        matrix_dim: Side length of the output matrix. Defaults to in_channels
             (standard PointNet feature transform).
-        conv_dims: Three 1×1 conv output widths (default ``(64, 128, 1024)``).
-        fc_dims: Two FC hidden sizes before the regression head (default ``(512, 256)``).
+        conv_dims: Three 1×1 conv output widths (default (64, 128, 1024)).
+        fc_dims: Two FC hidden sizes before the regression head (default (512, 256)).
     """
 
     def __init__(
