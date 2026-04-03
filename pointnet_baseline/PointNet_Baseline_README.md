@@ -242,6 +242,18 @@ $$
 \text{Accuracy} = \frac{\text{total correctly predicted points}}{\text{total tested points}}
 $$
 
+### Class avg accuracy
+
+Average of the per-class accuracies:
+
+$$
+\text{Class Avg Accuracy} = \frac{1}{K}\sum_{k=1}^{K} \text{Accuracy}_k
+$$
+
+where $K$ is the number of classes and $\text{Accuracy}_k$ is the accuracy for class $k$.
+
+Unlike overall accuracy, this gives each class equal weight.
+
 ### Class avg mIoU
 
 Same as above:
