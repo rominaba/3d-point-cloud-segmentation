@@ -2,7 +2,7 @@
 PointNet++ Set Abstraction layers for PointNet++-style feature learning.
 
 This file provides a simple downsampling + local feature extraction layer built
-on top of your MultiResolutionPointNetLocal.
+on top of the MultiResolutionPointNetLocal module.
 """
 
 from __future__ import annotations
