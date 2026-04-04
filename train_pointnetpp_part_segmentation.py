@@ -71,6 +71,7 @@ def main() -> None:
     )
     args = parser.parse_args()
     sa_aggregation = {"mrg": "multiresolution", "msg": "multiscale"}[args.sa_aggregation]
+    logger.info(f"Training PointNet++ part segmentation on ShapeNetPart with {sa_aggregation} aggregation method.")
     device = choose_device(logger)
 
     category_mapping = load_category_mapping(args.data_root)

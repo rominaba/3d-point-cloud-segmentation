@@ -13,7 +13,7 @@ from src.pointnetpp.classification import PointNetPPClassifier
 from src.utils.utils import choose_device, collect_garbage, set_seed
 from src.utils.utils import get_logger
 
-logger = get_logger("train_pointnetpp_classification")
+logger = get_logger("train_pointnetpp_classification", write_to_file=True)
 
 # Set seed for reproducibility
 set_seed()
@@ -57,6 +57,7 @@ def main() -> None:
     )
     args = parser.parse_args()
     sa_aggregation = {"mrg": "multiresolution", "msg": "multiscale"}[args.sa_aggregation]
+    logger.info(f"Training PointNet++ classifier on ShapeNetPart category labels with {sa_aggregation} aggregation method.")
     device = choose_device(logger)
 
     category_mapping = load_category_mapping(args.data_root)

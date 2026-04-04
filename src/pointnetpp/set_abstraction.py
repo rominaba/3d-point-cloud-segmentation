@@ -143,8 +143,10 @@ class SetAbstraction(nn.Module):
             fps_idx = farthest_point_sample(
                 x, self.npoint, deterministic_start=self.deterministic_start
             )
-        new_xyz = index_points(x[..., :3], fps_idx)
-        fused, _ = self.msg(x, centroid_xyz=new_xyz)
+            new_xyz = index_points(x[..., :3], fps_idx)
+            fused, _ = self.msg(x, centroid_xyz=new_xyz)
+        
+        
         
         
         return new_xyz, fused

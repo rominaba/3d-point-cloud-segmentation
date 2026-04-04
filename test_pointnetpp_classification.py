@@ -11,7 +11,7 @@ from src.dataset import ShapeNetPartDataset, load_category_mapping, load_splits
 from src.pointnetpp.classification import PointNetPPClassifier
 from src.utils.utils import get_logger, choose_device
 
-logger = get_logger("test_pointnetpp_classification")
+logger = get_logger("test_pointnetpp_classification", write_to_file=True)
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Test PointNet++ classifier on ShapeNetPart test split.")
@@ -42,7 +42,8 @@ def main() -> None:
     in_channels = int(ckpt["in_channels"])
     num_classes = int(ckpt["num_classes"])
     sa_aggregation = ckpt.get("sa_aggregation")
-
+    logger.info(f"Testing {args.checkpoint}...")
+    logger.info(f"Set Abstraction Grouping Method: {sa_aggregation}")
     model = PointNetPPClassifier(
         in_channels=in_channels,
         num_classes=num_classes,

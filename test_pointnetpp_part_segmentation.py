@@ -11,7 +11,7 @@ from src.dataset import ShapeNetPartDataset, load_category_mapping, load_splits
 from src.pointnetpp.part_segmentation import PointNetPPPartSeg
 from src.utils.utils import get_logger, choose_device
 
-logger = get_logger("test_pointnetpp_part_segmentation")
+logger = get_logger("test_pointnetpp_part_segmentation", write_to_file=True)
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Test PointNet++ part segmentation on ShapeNetPart test split.")
@@ -46,6 +46,9 @@ def main() -> None:
     category_embed_dim = int(ckpt.get("category_embed_dim", 16))
 
     sa_aggregation = ckpt.get("sa_aggregation")
+    
+    logger.info(f"Testing {args.checkpoint}...")
+    logger.info(f"Set Abstraction Grouping Method: {sa_aggregation}")
 
     model = PointNetPPPartSeg(
         in_channels=in_channels,
