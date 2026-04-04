@@ -4,10 +4,13 @@ Simple PointNet++ classification model (encoder + global pooling + classifier he
 
 from __future__ import annotations
 
+from typing import Literal
 import torch
 import torch.nn as nn
 
-from .set_abstraction import SetAbstractionMRG
+from .set_abstraction import SetAbstraction
+
+SaAggregation = Literal["multiresolution", "multiscale"]
 
 
 def _make_mlp(in_dim: int, dims: list[int]) -> nn.Sequential:
@@ -35,6 +38,8 @@ class PointNetPPClassifier(nn.Module):
         *,
         in_channels: int,
         num_classes: int,
+        sa_aggregation: SaAggregation = "multiresolution",
+        # Abstraction layers for MultiResolution
         sa1_npoint: int = 256,
         sa1_coarse_npoint: int = 128,
         sa1_fine_radius: float = 0.2,
@@ -53,38 +58,83 @@ class PointNetPPClassifier(nn.Module):
         sa2_coarse_max_neighbors: int = 32,
         sa2_coarse_mlp_dims: list[int] = [64, 128],
         sa2_fused_dim: int = 256,
+        # Abstraction layers for MultiScale
+        sa1_msg_radii: list[float] | None = None,
+        sa1_msg_max_neighbors: list[int] | None = None,
+        sa1_msg_mlp_dims_per_scale: list[list[int]] | None = None,
+        sa2_msg_radii: list[float] | None = None,
+        sa2_msg_max_neighbors: list[int] | None = None,
+        sa2_msg_mlp_dims_per_scale: list[list[int]] | None = None,
         head_mlp_dims: list[int] = [256, 128],
     ) -> None:
         super().__init__()
 
-
         self.in_channels = in_channels
         self.num_classes = num_classes
+        self.sa_aggregation = sa_aggregation
 
-        self.sa1 = SetAbstractionMRG(
-            in_channels=in_channels,
-            npoint=sa1_npoint,
-            coarse_npoint=sa1_coarse_npoint,
-            fine_radius=sa1_fine_radius,
-            fine_max_neighbors=sa1_fine_max_neighbors,
-            fine_mlp_dims=sa1_fine_mlp_dims,
-            coarse_radius=sa1_coarse_radius,
-            coarse_max_neighbors=sa1_coarse_max_neighbors,
-            coarse_mlp_dims=sa1_coarse_mlp_dims,
-            fused_dim=sa1_fused_dim,
-        )
-        self.sa2 = SetAbstractionMRG(
-            in_channels=3 + self.sa1.out_channels,
-            npoint=sa2_npoint,
-            coarse_npoint=sa2_coarse_npoint,
-            fine_radius=sa2_fine_radius,
-            fine_max_neighbors=sa2_fine_max_neighbors,
-            fine_mlp_dims=sa2_fine_mlp_dims,
-            coarse_radius=sa2_coarse_radius,
-            coarse_max_neighbors=sa2_coarse_max_neighbors,
-            coarse_mlp_dims=sa2_coarse_mlp_dims,
-            fused_dim=sa2_fused_dim,
-        )
+        if sa_aggregation == "multiresolution":
+            self.sa1 = SetAbstraction(
+                in_channels=in_channels,
+                npoint=sa1_npoint,
+                aggregation="multiresolution",
+                coarse_npoint=sa1_coarse_npoint,
+                fine_radius=sa1_fine_radius,
+                fine_max_neighbors=sa1_fine_max_neighbors,
+                fine_mlp_dims=sa1_fine_mlp_dims,
+                coarse_radius=sa1_coarse_radius,
+                coarse_max_neighbors=sa1_coarse_max_neighbors,
+                coarse_mlp_dims=sa1_coarse_mlp_dims,
+                fused_dim=sa1_fused_dim,
+            )
+        else:
+            r1 = sa1_msg_radii if sa1_msg_radii is not None else [0.2, 0.4]
+            k1 = sa1_msg_max_neighbors if sa1_msg_max_neighbors is not None else [16, 32]
+            m1 = (
+                sa1_msg_mlp_dims_per_scale
+                if sa1_msg_mlp_dims_per_scale is not None
+                else [[32, 64], [32, 64]]
+            )
+            self.sa1 = SetAbstraction(
+                in_channels=in_channels,
+                npoint=sa1_npoint,
+                aggregation="multiscale",
+                msg_radii=r1,
+                msg_max_neighbors=k1,
+                msg_mlp_dims_per_scale=m1,
+            )
+
+        sa2_in = 3 + self.sa1.out_channels
+        if sa_aggregation == "multiresolution":
+            self.sa2 = SetAbstraction(
+                in_channels=sa2_in,
+                npoint=sa2_npoint,
+                aggregation="multiresolution",
+                coarse_npoint=sa2_coarse_npoint,
+                fine_radius=sa2_fine_radius,
+                fine_max_neighbors=sa2_fine_max_neighbors,
+                fine_mlp_dims=sa2_fine_mlp_dims,
+                coarse_radius=sa2_coarse_radius,
+                coarse_max_neighbors=sa2_coarse_max_neighbors,
+                coarse_mlp_dims=sa2_coarse_mlp_dims,
+                fused_dim=sa2_fused_dim,
+            )
+        else:
+            r2 = sa2_msg_radii if sa2_msg_radii is not None else [0.4, 0.8]
+            k2 = sa2_msg_max_neighbors if sa2_msg_max_neighbors is not None else [16, 32]
+            m2 = (
+                sa2_msg_mlp_dims_per_scale
+                if sa2_msg_mlp_dims_per_scale is not None
+                else [[64, 128], [64, 128]]
+            )
+            self.sa2 = SetAbstraction(
+                in_channels=sa2_in,
+                npoint=sa2_npoint,
+                aggregation="multiscale",
+                msg_radii=r2,
+                msg_max_neighbors=k2,
+                msg_mlp_dims_per_scale=m2,
+            )
         self.head = _make_mlp(self.sa2.out_channels, head_mlp_dims)
         self.classifier = nn.Linear(head_mlp_dims[-1], num_classes)
 

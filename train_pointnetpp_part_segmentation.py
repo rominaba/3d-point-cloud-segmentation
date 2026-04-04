@@ -62,8 +62,15 @@ def main() -> None:
     parser.add_argument("--use-category-conditioning", action="store_true")
     parser.add_argument("--category-embed-dim", type=int, default=16)
     parser.add_argument("--save-path", type=str, default="checkpoints/pointnetpp_part_seg.pt")
+    parser.add_argument(
+        "--sa-aggregation",
+        type=str,
+        choices=("mrg", "msg"),
+        default="multiresolution",
+        help="Set abstraction local features: MRG (multiresolution) or MSG (multiscale).",
+    )
     args = parser.parse_args()
-
+    sa_aggregation = {"mrg": "multiresolution", "msg": "multiscale"}[args.sa_aggregation]
     device = choose_device(logger)
 
     category_mapping = load_category_mapping(args.data_root)
@@ -97,6 +104,7 @@ def main() -> None:
         num_part_classes=args.num_part_classes,
         num_categories=(len(train_dataset.category_to_idx) if args.use_category_conditioning else None),
         category_embed_dim=(args.category_embed_dim if args.use_category_conditioning else 0),
+        sa_aggregation=sa_aggregation,
     ).to(device)
 
     loss_fn = nn.CrossEntropyLoss()
@@ -155,6 +163,7 @@ def main() -> None:
                     "use_category_conditioning": args.use_category_conditioning,
                     "num_categories": len(train_dataset.category_to_idx),
                     "category_embed_dim": args.category_embed_dim,
+                    "sa_aggregation": sa_aggregation,
                 },
                 save_path,
             )

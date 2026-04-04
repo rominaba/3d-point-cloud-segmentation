@@ -45,11 +45,14 @@ def main() -> None:
     num_categories = int(ckpt.get("num_categories", len(test_dataset.category_to_idx)))
     category_embed_dim = int(ckpt.get("category_embed_dim", 16))
 
+    sa_aggregation = ckpt.get("sa_aggregation")
+
     model = PointNetPPPartSeg(
         in_channels=in_channels,
         num_part_classes=num_part_classes,
         num_categories=(num_categories if use_category_conditioning else None),
         category_embed_dim=(category_embed_dim if use_category_conditioning else 0),
+        sa_aggregation=sa_aggregation,
     ).to(device)
     model.load_state_dict(ckpt["model_state_dict"])
     model.eval()

@@ -48,8 +48,15 @@ def main() -> None:
     parser.add_argument("--weight-decay", type=float, default=1e-4)
     parser.add_argument("--num-workers", type=int, default=0)
     parser.add_argument("--save-path", type=str, default="checkpoints/pointnetpp_classification.pt")
+    parser.add_argument(
+        "--sa-aggregation",
+        type=str,
+        choices=("mrg", "msg"),
+        default="msg",
+        help="Set abstraction local features grouping method: mrg (multiresolution) or msg (multiscale).",
+    )
     args = parser.parse_args()
-
+    sa_aggregation = {"mrg": "multiresolution", "msg": "multiscale"}[args.sa_aggregation]
     device = choose_device(logger)
 
     category_mapping = load_category_mapping(args.data_root)
@@ -80,7 +87,11 @@ def main() -> None:
 
     in_channels = 6 if args.use_normals else 3
     num_classes = len(train_dataset.category_to_idx)
-    model = PointNetPPClassifier(in_channels=in_channels, num_classes=num_classes).to(device)
+    model = PointNetPPClassifier(
+        in_channels=in_channels,
+        num_classes=num_classes,
+        sa_aggregation=sa_aggregation,
+    ).to(device)
 
     loss_fn = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
@@ -127,6 +138,7 @@ def main() -> None:
                     "in_channels": in_channels,
                     "num_classes": num_classes,
                     "use_normals": args.use_normals,
+                    "sa_aggregation": sa_aggregation,
                 },
                 save_path,
             )

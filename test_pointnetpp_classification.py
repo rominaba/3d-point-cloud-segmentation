@@ -41,8 +41,13 @@ def main() -> None:
     ckpt = torch.load(args.checkpoint, map_location=device)
     in_channels = int(ckpt["in_channels"])
     num_classes = int(ckpt["num_classes"])
+    sa_aggregation = ckpt.get("sa_aggregation")
 
-    model = PointNetPPClassifier(in_channels=in_channels, num_classes=num_classes).to(device)
+    model = PointNetPPClassifier(
+        in_channels=in_channels,
+        num_classes=num_classes,
+        sa_aggregation=sa_aggregation,
+    ).to(device)
     model.load_state_dict(ckpt["model_state_dict"])
     model.eval()
 
