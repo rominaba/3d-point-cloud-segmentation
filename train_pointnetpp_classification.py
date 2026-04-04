@@ -12,12 +12,12 @@ from src.dataset import ShapeNetPartDataset, load_category_mapping, load_splits
 from src.pointnetpp.classification import PointNetPPClassifier
 from src.utils.utils import choose_device, collect_garbage, set_seed
 from src.utils.utils import get_logger
-
+from datetime import datetime
 logger = get_logger("train_pointnetpp_classification", write_to_file=True)
 
 # Set seed for reproducibility
 set_seed()
-
+current_time = datetime.now().strftime("%Y-%m-%d-%H-%M")
 def evaluate(model: nn.Module, loader: DataLoader, device: torch.device) -> tuple[float, float]:
     model.eval()
     loss_fn = nn.CrossEntropyLoss()
@@ -47,7 +47,7 @@ def main() -> None:
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--weight-decay", type=float, default=1e-4)
     parser.add_argument("--num-workers", type=int, default=0)
-    parser.add_argument("--save-path", type=str, default="checkpoints/pointnetpp_classification.pt")
+    parser.add_argument("--save-dir", type=str, default="checkpoints")
     parser.add_argument(
         "--sa-aggregation",
         type=str,
@@ -98,9 +98,9 @@ def main() -> None:
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
 
     best_val_acc = -1.0
-    save_path = Path(args.save_path)
-    save_path.parent.mkdir(parents=True, exist_ok=True)
-
+    save_dir = Path(args.save_dir)
+    save_dir.mkdir(parents=True, exist_ok=True)
+    save_path = save_dir / f"pointnetpp-classification-with-{sa_aggregation}-{current_time}.pt"
     for epoch in range(1, args.epochs + 1):
         collect_garbage(device)
         model.train()

@@ -11,7 +11,9 @@ from src.config import BATCH_SIZE, DATA_ROOT, NUM_POINTS, USE_NORMALS
 from src.dataset import ShapeNetPartDataset, load_category_mapping, load_splits
 from src.pointnetpp.part_segmentation import PointNetPPPartSeg
 from src.utils.utils import get_logger, choose_device, set_seed, collect_garbage
+from datetime import datetime
 
+current_time = datetime.now().strftime("%Y-%m-%d-%H-%M")
 set_seed()
 logger = get_logger("train_pointnetpp_part_segmentation")
 
@@ -61,7 +63,7 @@ def main() -> None:
     parser.add_argument("--num-part-classes", type=int, default=50)
     parser.add_argument("--use-category-conditioning", action="store_true")
     parser.add_argument("--category-embed-dim", type=int, default=16)
-    parser.add_argument("--save-path", type=str, default="checkpoints/pointnetpp_part_seg.pt")
+    parser.add_argument("--save-dir", type=str, default="checkpoints")
     parser.add_argument(
         "--sa-aggregation",
         type=str,
@@ -112,8 +114,10 @@ def main() -> None:
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
 
     best_val_acc = -1.0
-    save_path = Path(args.save_path)
-    save_path.parent.mkdir(parents=True, exist_ok=True)
+    save_dir = Path(args.save_dir)
+    save_dir.mkdir(parents=True, exist_ok=True)
+    save_path = save_dir / f"pointnetpp-part-segmentation-with-{sa_aggregation}-{current_time}.pt"
+    
 
     for epoch in range(1, args.epochs + 1):
         collect_garbage(device)
