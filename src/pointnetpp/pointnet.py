@@ -27,6 +27,7 @@ def _make_h_mlp(in_channels: int, mlp_dims: list[int]) -> nn.Sequential:
 
 
 def _make_gamma_mlp(in_channels: int, dims: list[int]) -> nn.Sequential | None:
+    """MLP after max pooling to output the global feature."""
     if not dims:
         return None
     layers: list[nn.Module] = []
