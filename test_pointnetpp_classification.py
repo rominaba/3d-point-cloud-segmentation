@@ -9,7 +9,7 @@ from tqdm import tqdm
 from src.config import BATCH_SIZE, DATA_ROOT, NUM_POINTS, USE_NORMALS
 from src.dataset import ShapeNetPartDataset, load_category_mapping, load_splits
 from src.pointnetpp.classification import PointNetPPClassifier
-from src.utils.utils import get_logger
+from src.utils.utils import get_logger, choose_device
 
 logger = get_logger("test_pointnetpp_classification")
 
@@ -23,7 +23,7 @@ def main() -> None:
     parser.add_argument("--num-workers", type=int, default=0)
     args = parser.parse_args()
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = choose_device(logger)
 
     category_mapping = load_category_mapping(args.data_root)
     _train_list, _val_list, test_list = load_splits(args.data_root)
