@@ -1,0 +1,136 @@
+Using device: mps
+PARAMETER ...
+Namespace(model='pointnet_part_seg', batch_size=20, epoch=5, learning_rate=0.001, gpu='0', optimizer='Adam', log_dir='pointnet_partseg_xyz_1024_bs20_train', decay_rate=0.0001, npoint=1024, normal=False, step_size=20, lr_decay=0.5)
+The number of training data is: 13998
+The number of test data is: 2874
+No existing model, starting training from scratch...
+Epoch 1 (1/5):
+Learning rate:0.001000
+BN momentum updated to: 0.100000
+Train accuracy is: 0.69545
+eval mIoU of Airplane       0.606736
+eval mIoU of Bag            0.455314
+eval mIoU of Cap            0.364835
+eval mIoU of Car            0.243693
+eval mIoU of Chair          0.769057
+eval mIoU of Earphone       0.621165
+eval mIoU of Guitar         0.750929
+eval mIoU of Knife          0.755398
+eval mIoU of Lamp           0.626077
+eval mIoU of Laptop         0.911178
+eval mIoU of Motorbike      0.168339
+eval mIoU of Mug            0.486894
+eval mIoU of Pistol         0.526250
+eval mIoU of Rocket         0.228884
+eval mIoU of Skateboard     0.437321
+eval mIoU of Table          0.735824
+Epoch 1 test Accuracy: 0.838325  Class avg mIOU: 0.542993   Inctance avg mIOU: 0.671865
+Saving at log/part_seg/pointnet_partseg_xyz_1024_bs20_train/checkpoints/best_model.pth
+Saving model....
+Best accuracy is: 0.83833
+Best class avg mIOU is: 0.54299
+Best inctance avg mIOU is: 0.67187
+Epoch 2 (2/5):
+Learning rate:0.001000
+BN momentum updated to: 0.100000
+Train accuracy is: 0.79358
+eval mIoU of Airplane       0.661045
+eval mIoU of Bag            0.698726
+eval mIoU of Cap            0.516610
+eval mIoU of Car            0.235762
+eval mIoU of Chair          0.815578
+eval mIoU of Earphone       0.626410
+eval mIoU of Guitar         0.777322
+eval mIoU of Knife          0.775444
+eval mIoU of Lamp           0.651713
+eval mIoU of Laptop         0.932419
+eval mIoU of Motorbike      0.197344
+eval mIoU of Mug            0.486709
+eval mIoU of Pistol         0.556596
+eval mIoU of Rocket         0.368402
+eval mIoU of Skateboard     0.443079
+eval mIoU of Table          0.737776
+Epoch 2 test Accuracy: 0.854781  Class avg mIOU: 0.592558   Inctance avg mIOU: 0.698441
+Saving at log/part_seg/pointnet_partseg_xyz_1024_bs20_train/checkpoints/best_model.pth
+Saving model....
+Best accuracy is: 0.85478
+Best class avg mIOU is: 0.59256
+Best inctance avg mIOU is: 0.69844
+Epoch 3 (3/5):
+Learning rate:0.001000
+BN momentum updated to: 0.100000
+Train accuracy is: 0.82544
+eval mIoU of Airplane       0.652012
+eval mIoU of Bag            0.625669
+eval mIoU of Cap            0.598962
+eval mIoU of Car            0.364728
+eval mIoU of Chair          0.817270
+eval mIoU of Earphone       0.604729
+eval mIoU of Guitar         0.769016
+eval mIoU of Knife          0.775530
+eval mIoU of Lamp           0.676317
+eval mIoU of Laptop         0.898949
+eval mIoU of Motorbike      0.239049
+eval mIoU of Mug            0.486842
+eval mIoU of Pistol         0.614351
+eval mIoU of Rocket         0.420290
+eval mIoU of Skateboard     0.508364
+eval mIoU of Table          0.744192
+Epoch 3 test Accuracy: 0.858566  Class avg mIOU: 0.612267   Inctance avg mIOU: 0.710192
+Saving at log/part_seg/pointnet_partseg_xyz_1024_bs20_train/checkpoints/best_model.pth
+Saving model....
+Best accuracy is: 0.85857
+Best class avg mIOU is: 0.61227
+Best inctance avg mIOU is: 0.71019
+Epoch 4 (4/5):
+Learning rate:0.001000
+BN momentum updated to: 0.100000
+Train accuracy is: 0.84845
+eval mIoU of Airplane       0.649446
+eval mIoU of Bag            0.744957
+eval mIoU of Cap            0.678599
+eval mIoU of Car            0.344342
+eval mIoU of Chair          0.814935
+eval mIoU of Earphone       0.646228
+eval mIoU of Guitar         0.811641
+eval mIoU of Knife          0.774767
+eval mIoU of Lamp           0.678391
+eval mIoU of Laptop         0.931433
+eval mIoU of Motorbike      0.258867
+eval mIoU of Mug            0.652357
+eval mIoU of Pistol         0.619825
+eval mIoU of Rocket         0.448173
+eval mIoU of Skateboard     0.541063
+eval mIoU of Table          0.752322
+Epoch 4 test Accuracy: 0.864646  Class avg mIOU: 0.646709   Inctance avg mIOU: 0.718256
+Saving at log/part_seg/pointnet_partseg_xyz_1024_bs20_train/checkpoints/best_model.pth
+Saving model....
+Best accuracy is: 0.86465
+Best class avg mIOU is: 0.64671
+Best inctance avg mIOU is: 0.71826
+Epoch 5 (5/5):
+Learning rate:0.001000
+BN momentum updated to: 0.100000
+Train accuracy is: 0.86331
+eval mIoU of Airplane       0.690049
+eval mIoU of Bag            0.697743
+eval mIoU of Cap            0.676396
+eval mIoU of Car            0.374979
+eval mIoU of Chair          0.838912
+eval mIoU of Earphone       0.652160
+eval mIoU of Guitar         0.816208
+eval mIoU of Knife          0.786103
+eval mIoU of Lamp           0.717834
+eval mIoU of Laptop         0.863040
+eval mIoU of Motorbike      0.264743
+eval mIoU of Mug            0.783735
+eval mIoU of Pistol         0.609572
+eval mIoU of Rocket         0.441153
+eval mIoU of Skateboard     0.588027
+eval mIoU of Table          0.752571
+Epoch 5 test Accuracy: 0.874505  Class avg mIOU: 0.659577   Inctance avg mIOU: 0.735175
+Saving at log/part_seg/pointnet_partseg_xyz_1024_bs20_train/checkpoints/best_model.pth
+Saving model....
+Best accuracy is: 0.87450
+Best class avg mIOU is: 0.65958
+Best inctance avg mIOU is: 0.73517
