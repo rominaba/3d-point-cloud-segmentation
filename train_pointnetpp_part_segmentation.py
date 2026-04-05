@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 from datetime import datetime
+import matplotlib.pyplot as plt
 
 import torch
 from torch import nn
@@ -33,6 +34,7 @@ def main() -> None:
     parser.add_argument("--use-category-conditioning", action="store_true")
     parser.add_argument("--category-embed-dim", type=int, default=16)
     parser.add_argument("--save-dir", type=str, default="checkpoints")
+    parser.add_argument("--graph-dir", type=str, default="graphs")
     parser.add_argument(
         "--sa-aggregation",
         type=str,
@@ -92,6 +94,11 @@ def main() -> None:
     save_dir.mkdir(parents=True, exist_ok=True)
     save_path = save_dir / f"pointnetpp-part-segmentation-with-{sa_aggregation}-{current_time}.pt"
 
+    train_acc_history = []
+    val_acc_history = []
+    val_class_avg_miou_history = []
+    val_instance_avg_miou_history = []
+
     for epoch in range(1, args.epochs + 1):
         collect_garbage(device)
         model.train()
@@ -134,6 +141,11 @@ def main() -> None:
             use_category_conditioning=args.use_category_conditioning,
         )
 
+        train_acc_history.append(train_point_acc)
+        val_acc_history.append(metrics["accuracy"])
+        val_class_avg_miou_history.append(metrics["class_avg_miou"])
+        val_instance_avg_miou_history.append(metrics["instance_avg_miou"])
+
         logger.info(f"Epoch {epoch} ({epoch}/{args.epochs}):")
         logger.info(f"Train loss is: {train_loss:.5f}")
         logger.info(f"Train accuracy is: {train_point_acc:.5f}")
@@ -175,7 +187,39 @@ def main() -> None:
         logger.info(f"Best instance avg mIOU is: {best_instance_avg_miou:.5f}")
 
     logger.info(f"Training complete. Best checkpoint saved at: {save_path}")
+    
+    graph_dir = Path(args.graph_dir)
+    graph_dir.mkdir(parents=True, exist_ok=True)
+    epochs = list(range(1, args.epochs + 1))
 
+    # Graph 1: train vs validation accuracy
+    plt.figure(figsize=(8, 5))
+    plt.plot(epochs, train_acc_history, marker="o", label="Train Accuracy")
+    plt.plot(epochs, val_acc_history, marker="o", label="Validation/Test Accuracy")
+    plt.xlabel("Epoch")
+    plt.ylabel("Accuracy")
+    plt.title("PointNet++ Part Segmentation Accuracy vs Epoch")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig(graph_dir / f"accuracy_vs_epoch_{sa_aggregation}_{current_time}.png")
+    plt.close()
+
+    # Graph 2: validation/test mIoU metrics
+    plt.figure(figsize=(8, 5))
+    plt.plot(epochs, val_class_avg_miou_history, marker="o", label="Class Avg mIoU")
+    plt.plot(epochs, val_instance_avg_miou_history, marker="o", label="Instance Avg mIoU")
+    plt.xlabel("Epoch")
+    plt.ylabel("mIoU")
+    plt.title("PointNet++ Part Segmentation mIoU vs Epoch")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig(graph_dir / f"miou_vs_epoch_{sa_aggregation}_{current_time}.png")
+    plt.close()
+
+    logger.info(f"Saved accuracy plot to {graph_dir / f'accuracy_vs_epoch_{sa_aggregation}_{current_time}.png'}")
+    logger.info(f"Saved mIoU plot to {graph_dir / f'miou_vs_epoch_{sa_aggregation}_{current_time}.png'}")
 
 if __name__ == "__main__":
     main()

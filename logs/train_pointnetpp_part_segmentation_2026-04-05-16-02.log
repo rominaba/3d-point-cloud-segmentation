@@ -1,0 +1,80 @@
+2026-04-05-16:02 - train_pointnetpp_part_segmentation - INFO - Training PointNet++ part segmentation on ShapeNetPart with multiresolution aggregation method.
+2026-04-05-16:02 - train_pointnetpp_part_segmentation - INFO - Chosen device: mps
+2026-04-05-16:06 - train_pointnetpp_part_segmentation - INFO - Epoch 1 (1/3):
+2026-04-05-16:06 - train_pointnetpp_part_segmentation - INFO - Train loss is: 2.70493
+2026-04-05-16:06 - train_pointnetpp_part_segmentation - INFO - Train accuracy is: 0.27723
+2026-04-05-16:06 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Airplane        0.209766
+2026-04-05-16:06 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Bag             0.062500
+2026-04-05-16:06 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Cap             0.000000
+2026-04-05-16:06 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Car             0.052469
+2026-04-05-16:06 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Chair           0.505035
+2026-04-05-16:06 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Earphone        0.222222
+2026-04-05-16:06 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Guitar          0.244356
+2026-04-05-16:06 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Knife           0.000000
+2026-04-05-16:06 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Lamp            0.341765
+2026-04-05-16:06 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Laptop          0.000000
+2026-04-05-16:06 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Motorbike       0.096154
+2026-04-05-16:06 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Mug             0.000000
+2026-04-05-16:06 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Pistol          0.000000
+2026-04-05-16:06 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Rocket          0.125000
+2026-04-05-16:06 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Skateboard      0.066667
+2026-04-05-16:06 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Table           0.746633
+2026-04-05-16:06 - train_pointnetpp_part_segmentation - INFO - Epoch 1 test Accuracy: 0.433575  Class avg mIOU: 0.167035   Instance avg mIOU: 0.427566
+2026-04-05-16:06 - train_pointnetpp_part_segmentation - INFO - Validation loss is: 1.98770
+2026-04-05-16:06 - train_pointnetpp_part_segmentation - INFO - Saved best checkpoint to checkpoints/pointnetpp-part-segmentation-with-multiresolution-2026-04-05-16-02.pt
+2026-04-05-16:06 - train_pointnetpp_part_segmentation - INFO - Best accuracy is: 0.43357
+2026-04-05-16:06 - train_pointnetpp_part_segmentation - INFO - Best class avg mIOU is: 0.16704
+2026-04-05-16:06 - train_pointnetpp_part_segmentation - INFO - Best instance avg mIOU is: 0.42757
+2026-04-05-16:11 - train_pointnetpp_part_segmentation - INFO - Epoch 2 (2/3):
+2026-04-05-16:11 - train_pointnetpp_part_segmentation - INFO - Train loss is: 1.54024
+2026-04-05-16:11 - train_pointnetpp_part_segmentation - INFO - Train accuracy is: 0.54166
+2026-04-05-16:11 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Airplane        0.532604
+2026-04-05-16:11 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Bag             0.062625
+2026-04-05-16:11 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Cap             0.000000
+2026-04-05-16:11 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Car             0.155602
+2026-04-05-16:11 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Chair           0.602634
+2026-04-05-16:11 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Earphone        0.222222
+2026-04-05-16:11 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Guitar          0.757933
+2026-04-05-16:11 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Knife           0.188125
+2026-04-05-16:11 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Lamp            0.415057
+2026-04-05-16:11 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Laptop          0.474435
+2026-04-05-16:11 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Motorbike       0.097029
+2026-04-05-16:11 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Mug             0.000000
+2026-04-05-16:11 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Pistol          0.141831
+2026-04-05-16:11 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Rocket          0.125000
+2026-04-05-16:11 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Skateboard      0.066667
+2026-04-05-16:11 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Table           0.780271
+2026-04-05-16:11 - train_pointnetpp_part_segmentation - INFO - Epoch 2 test Accuracy: 0.624544  Class avg mIOU: 0.288877   Instance avg mIOU: 0.574780
+2026-04-05-16:11 - train_pointnetpp_part_segmentation - INFO - Validation loss is: 1.20466
+2026-04-05-16:11 - train_pointnetpp_part_segmentation - INFO - Saved best checkpoint to checkpoints/pointnetpp-part-segmentation-with-multiresolution-2026-04-05-16-02.pt
+2026-04-05-16:11 - train_pointnetpp_part_segmentation - INFO - Best accuracy is: 0.62454
+2026-04-05-16:11 - train_pointnetpp_part_segmentation - INFO - Best class avg mIOU is: 0.28888
+2026-04-05-16:11 - train_pointnetpp_part_segmentation - INFO - Best instance avg mIOU is: 0.57478
+2026-04-05-16:15 - train_pointnetpp_part_segmentation - INFO - Epoch 3 (3/3):
+2026-04-05-16:15 - train_pointnetpp_part_segmentation - INFO - Train loss is: 1.10069
+2026-04-05-16:15 - train_pointnetpp_part_segmentation - INFO - Train accuracy is: 0.67144
+2026-04-05-16:15 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Airplane        0.643486
+2026-04-05-16:15 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Bag             0.062500
+2026-04-05-16:15 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Cap             0.000000
+2026-04-05-16:15 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Car             0.350913
+2026-04-05-16:15 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Chair           0.740600
+2026-04-05-16:15 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Earphone        0.222222
+2026-04-05-16:15 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Guitar          0.792469
+2026-04-05-16:15 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Knife           0.421369
+2026-04-05-16:15 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Lamp            0.515099
+2026-04-05-16:15 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Laptop          0.607442
+2026-04-05-16:15 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Motorbike       0.100661
+2026-04-05-16:15 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Mug             0.233240
+2026-04-05-16:15 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Pistol          0.383794
+2026-04-05-16:15 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Rocket          0.125000
+2026-04-05-16:15 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Skateboard      0.066667
+2026-04-05-16:15 - train_pointnetpp_part_segmentation - INFO - eval mIoU of Table           0.772962
+2026-04-05-16:15 - train_pointnetpp_part_segmentation - INFO - Epoch 3 test Accuracy: 0.735196  Class avg mIOU: 0.377402   Instance avg mIOU: 0.655855
+2026-04-05-16:15 - train_pointnetpp_part_segmentation - INFO - Validation loss is: 0.89455
+2026-04-05-16:15 - train_pointnetpp_part_segmentation - INFO - Saved best checkpoint to checkpoints/pointnetpp-part-segmentation-with-multiresolution-2026-04-05-16-02.pt
+2026-04-05-16:15 - train_pointnetpp_part_segmentation - INFO - Best accuracy is: 0.73520
+2026-04-05-16:15 - train_pointnetpp_part_segmentation - INFO - Best class avg mIOU is: 0.37740
+2026-04-05-16:15 - train_pointnetpp_part_segmentation - INFO - Best instance avg mIOU is: 0.65586
+2026-04-05-16:15 - train_pointnetpp_part_segmentation - INFO - Training complete. Best checkpoint saved at: checkpoints/pointnetpp-part-segmentation-with-multiresolution-2026-04-05-16-02.pt
+2026-04-05-16:15 - train_pointnetpp_part_segmentation - INFO - Saved accuracy plot to checkpoints/accuracy_vs_epoch_multiresolution_2026-04-05-16-02.png
+2026-04-05-16:15 - train_pointnetpp_part_segmentation - INFO - Saved mIoU plot to checkpoints/miou_vs_epoch_multiresolution_2026-04-05-16-02.png
