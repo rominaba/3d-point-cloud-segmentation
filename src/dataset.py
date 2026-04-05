@@ -133,6 +133,8 @@ class ShapeNetPartDataset(Dataset):
             self.class_idx_to_name,
             self.reverse_mapping,
         ) = build_class_mappings(category_mapping)
+        
+        self.idx_to_category = {idx: cat for cat, idx in self.category_to_idx.items()}
 
     def __len__(self) -> int:
         return len(self.split_list)
