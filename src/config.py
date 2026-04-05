@@ -5,6 +5,6 @@ DATA_ROOT = os.path.expanduser(
 )
 
 NUM_POINTS = 1024
-BATCH_SIZE = 20
+BATCH_SIZE = 16
 USE_NORMALS = False
 RANDOM_SEED = 42
