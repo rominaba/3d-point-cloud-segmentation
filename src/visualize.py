@@ -2,8 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-# 6 distinct colours since the maximum number of parts in a shape is 6 in this dataset
-COLOURS = ["#2d4fdb", "#b82b2b",  "#2ad340", "#a920c2", "#e6ca29", "#f59031"] 
+COLOURS = ["#2d4fdb", "#b82b2b",  "#2ad340", "#a920c2", "#e6ca29", "#f59031", "#ed81c2", "#040304", "#746B74", "#14DCE3"] 
 
 # Helper function
 def plot_part_seg(ax, points, labels, label_to_colour):
@@ -22,7 +21,8 @@ def plot_part_seg(ax, points, labels, label_to_colour):
     categorized_points = {}
 
     # Organize points by their label
-    for i, label in enumerate(unique_labels):
+    for i in range(len(points)):
+        label = labels[i]
         if label not in categorized_points:
             categorized_points[label] = []
         categorized_points[label].append(points[i])
@@ -67,7 +67,7 @@ def visualize_part_seg(points: np.ndarray, labels: np.ndarray, title: str | None
     # Extract unique labels and map each label to a distinct colour
     all_labels = np.unique(labels)
     label_to_colour = {
-        label: COLOURS[i] for i, label in enumerate(all_labels)
+        label: COLOURS[i % len(COLOURS)] for i, label in enumerate(all_labels)
     }
 
     # Initialize figure and axis objects
@@ -114,7 +114,7 @@ def visualize_part_seg_comparison(points: np.ndarray, pred_labels: np.ndarray, t
     # (ensures parts correspond to same colour for prediction and ground truth)
     all_labels = np.unique(np.concatenate([pred_labels, true_labels]))
     label_to_colour = {
-        label: COLOURS[i] for i, label in enumerate(all_labels) 
+        label: COLOURS[i % len(COLOURS)] for i, label in enumerate(all_labels) 
     }
    
     # Initialize figure object
