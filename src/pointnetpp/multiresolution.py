@@ -29,7 +29,7 @@ class MultiResolutionPointNetLocal(nn.Module):
         coarse_radius: float,
         coarse_max_neighbors: int,
         coarse_mlp_dims: list[int],
-        *,
+        # Number of centroids
         npoint: int | None = None,
         deterministic_start: bool = False,
         fused_dim: int | None = None,
