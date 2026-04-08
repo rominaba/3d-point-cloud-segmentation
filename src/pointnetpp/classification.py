@@ -59,12 +59,12 @@ class PointNetPPClassifier(nn.Module):
         sa2_coarse_mlp_dims: list[int] = [64, 128],
         sa2_fused_dim: int = 256,
         # Abstraction layers for MultiScale
-        sa1_msg_radii: list[float] | None = None,
-        sa1_msg_max_neighbors: list[int] | None = None,
-        sa1_msg_mlp_dims_per_scale: list[list[int]] | None = None,
-        sa2_msg_radii: list[float] | None = None,
-        sa2_msg_max_neighbors: list[int] | None = None,
-        sa2_msg_mlp_dims_per_scale: list[list[int]] | None = None,
+        sa1_msg_radii: list[float] = [0.2, 0.4],
+        sa1_msg_max_neighbors: list[int] = [16, 32],
+        sa1_msg_mlp_dims_per_scale: list[list[int]] = [[32, 64], [32, 64]],
+        sa2_msg_radii: list[float] = [0.4, 0.8],
+        sa2_msg_max_neighbors: list[int] = [16, 32],
+        sa2_msg_mlp_dims_per_scale: list[list[int]] = [[64, 128], [64, 128]],
         head_mlp_dims: list[int] = [256, 128],
     ) -> None:
         super().__init__()
@@ -88,20 +88,14 @@ class PointNetPPClassifier(nn.Module):
                 fused_dim=sa1_fused_dim,
             )
         else:
-            r1 = sa1_msg_radii if sa1_msg_radii is not None else [0.2, 0.4]
-            k1 = sa1_msg_max_neighbors if sa1_msg_max_neighbors is not None else [16, 32]
-            m1 = (
-                sa1_msg_mlp_dims_per_scale
-                if sa1_msg_mlp_dims_per_scale is not None
-                else [[32, 64], [32, 64]]
-            )
+            
             self.sa1 = SetAbstraction(
                 in_channels=in_channels,
                 npoint=sa1_npoint,
                 aggregation="multiscale",
-                msg_radii=r1,
-                msg_max_neighbors=k1,
-                msg_mlp_dims_per_scale=m1,
+                msg_radii=sa1_msg_radii,
+                msg_max_neighbors=sa1_msg_max_neighbors,
+                msg_mlp_dims_per_scale=sa1_msg_mlp_dims_per_scale,
             )
 
         sa2_in = 3 + self.sa1.out_channels
