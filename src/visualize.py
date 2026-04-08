@@ -1,11 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 import os
 
 COLOURS = ["#2d4fdb", "#b82b2b",  "#2ad340", "#a920c2", "#e6ca29", "#f59031", "#ed81c2", "#040304", "#746B74", "#14DCE3"] 
 
 # Helper function
-def plot_part_seg(ax, points, labels, label_to_colour):
+def plot_part_seg(ax: Axes3D, points: np.ndarray, labels: np.ndarray, label_to_colour: dict[np.int64, str]):
     """
     Helper function to plot a 3D point cloud with points colour-coded by part labels.
 
