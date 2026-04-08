@@ -10,6 +10,7 @@ from src.config import BATCH_SIZE, DATA_ROOT, NUM_POINTS, USE_NORMALS
 from src.dataset import ShapeNetPartDataset, load_category_mapping, load_splits
 from src.pointnetpp.part_segmentation import PointNetPPPartSeg
 from src.utils.utils import get_logger, choose_device
+from src.visualize import visualize_part_seg_comparison
 
 logger = get_logger("test_pointnetpp_part_segmentation", write_to_file=True)
 
@@ -21,6 +22,13 @@ def main() -> None:
     parser.add_argument("--use-normals", action="store_true", default=USE_NORMALS)
     parser.add_argument("--batch-size", type=int, default=BATCH_SIZE)
     parser.add_argument("--num-workers", type=int, default=0)
+    parser.add_argument(
+        "--sa-aggregation",
+        type=str,
+        choices=("mrg", "msg"),
+        default="mrg",
+        help="Set abstraction local features: MRG (multiresolution) or MSG (multiscale).",
+    )
     args = parser.parse_args()
 
     device = choose_device(logger)
@@ -45,7 +53,10 @@ def main() -> None:
     num_categories = int(ckpt.get("num_categories", len(test_dataset.category_to_idx)))
     category_embed_dim = int(ckpt.get("category_embed_dim", 16))
 
-    sa_aggregation = ckpt.get("sa_aggregation")
+    sa_aggregation = ckpt.get(
+        "sa_aggregation",
+        {"mrg": "multiresolution", "msg": "multiscale"}[args.sa_aggregation],
+    )
     
     logger.info(f"Testing {args.checkpoint}...")
     logger.info(f"Set Abstraction Grouping Method: {sa_aggregation}")
@@ -59,6 +70,9 @@ def main() -> None:
     ).to(device)
     model.load_state_dict(ckpt["model_state_dict"])
     model.eval()
+
+    idx_to_category = {v: k for k, v in test_dataset.category_to_idx.items()}
+    saved_categories_for_visualize = set()
 
     total_correct = 0
     total_points = 0
@@ -76,6 +90,22 @@ def main() -> None:
             pred = logits.argmax(dim=-1)
             total_correct += (pred == seg_labels).sum().item()
             total_points += seg_labels.numel()
+
+            # Visualization
+            for b in range(points.shape[0]):
+                cat_idx = class_labels[b].item()
+                cat_name = idx_to_category[cat_idx]
+
+                if cat_name not in saved_categories_for_visualize:
+                    pts = points[b].detach().cpu().numpy()[:,:3]
+                    pred_np = pred[b].detach().cpu().numpy()
+                    gt_np = seg_labels[b].detach().cpu().numpy()
+
+                    visualize_part_seg_comparison(pts, pred_np, gt_np, title=cat_name, save_path=f"visuals/{cat_name}_example.png")
+                    saved_categories_for_visualize.add(cat_name)
+                
+                if len(saved_categories_for_visualize) == len(idx_to_category):
+                    break
 
     point_acc = total_correct / max(total_points, 1)
     logger.info(f"Test part-seg point accuracy: {point_acc:.4f}")
