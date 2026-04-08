@@ -28,17 +28,11 @@ class MultiScalePointNetLocal(nn.Module):
         radii: list[float],
         max_neighbors: list[int],
         mlp_dims_per_scale: list[list[int]],
-        *,
+        # Number of centroids
         npoint: int | None = None,
         deterministic_start: bool = False,
     ) -> None:
         super().__init__()
-        if len(radii) == 0:
-            raise ValueError("radii must be non-empty")
-        if not (len(radii) == len(max_neighbors) == len(mlp_dims_per_scale)):
-            raise ValueError(
-                "radii, max_neighbors, mlp_dims_per_scale must have the same length"
-            )
         if npoint is not None and npoint < 1:
             raise ValueError(f"npoint must be >= 1 when provided, got {npoint}")
 
@@ -68,11 +62,6 @@ class MultiScalePointNetLocal(nn.Module):
             feat: (B, S, sum_j C_j), concatenated MSG features.
             centroid_xyz: (B, S, 3), provided or FPS-sampled centroids.
         """
-        if xyz.dim() != 3:
-            raise ValueError(f"xyz must be (B, N, C), got {tuple(xyz.shape)}")
-        if xyz.size(-1) < 3:
-            raise ValueError(f"xyz needs C >= 3, got {xyz.size(-1)}")
-
         b, _, _ = xyz.shape
 
         if centroid_xyz is None:
@@ -82,15 +71,6 @@ class MultiScalePointNetLocal(nn.Module):
                 xyz, self.npoint, deterministic_start=self.deterministic_start
             )
             centroid_xyz = index_points(xyz[..., :3], fps_idx)
-        else:
-            if centroid_xyz.dim() != 3 or centroid_xyz.size(-1) != 3:
-                raise ValueError(
-                    f"centroid_xyz must be (B, S, 3), got {tuple(centroid_xyz.shape)}"
-                )
-            if centroid_xyz.size(0) != b:
-                raise ValueError(
-                    f"batch mismatch: xyz B={b}, centroid_xyz B={centroid_xyz.size(0)}"
-                )
 
         scale_feats: list[torch.Tensor] = []
         for radius, k, net in zip(self.radii, self.max_neighbors, self.local_nets):

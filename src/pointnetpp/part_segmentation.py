@@ -51,53 +51,39 @@ class PointNetPPPartSeg(nn.Module):
         sa1_coarse_npoint: int = 128,
         sa1_fine_radius: float = 0.2,
         sa1_fine_max_neighbors: int = 16,
-        sa1_fine_mlp_dims: list[int] = None,  # type: ignore[assignment]
+        sa1_fine_mlp_dims: list[int] = [32, 64],  
         sa1_coarse_radius: float = 0.4,
         sa1_coarse_max_neighbors: int = 32,
-        sa1_coarse_mlp_dims: list[int] = None,  # type: ignore[assignment]
+        sa1_coarse_mlp_dims: list[int] = [32, 64], 
         sa1_fused_dim: int = 128,
         sa2_npoint: int = 64,
         sa2_coarse_npoint: int = 32,
         sa2_fine_radius: float = 0.4,
         sa2_fine_max_neighbors: int = 16,
-        sa2_fine_mlp_dims: list[int] = None,  # type: ignore[assignment]
+        sa2_fine_mlp_dims: list[int] = [64, 128],
         sa2_coarse_radius: float = 0.8,
         sa2_coarse_max_neighbors: int = 32,
-        sa2_coarse_mlp_dims: list[int] = None,  # type: ignore[assignment]
+        sa2_coarse_mlp_dims: list[int] = [64, 128],  
         sa2_fused_dim: int = 256,
         # Abstraction settings for MultiScale
-        sa1_msg_radii: list[float] | None = None,
-        sa1_msg_max_neighbors: list[int] | None = None,
-        sa1_msg_mlp_dims_per_scale: list[list[int]] | None = None,
-        sa2_msg_radii: list[float] | None = None,
-        sa2_msg_max_neighbors: list[int] | None = None,
-        sa2_msg_mlp_dims_per_scale: list[list[int]] | None = None,
-        # Decoder FP settings.
+        sa1_msg_radii: list[float] = [0.2, 0.4],
+        sa1_msg_max_neighbors: list[int] = [16, 32],
+        sa1_msg_mlp_dims_per_scale: list[list[int]] = [[32, 64], [32, 64]],
+        sa2_msg_radii: list[float] = [0.4, 0.8],
+        sa2_msg_max_neighbors: list[int] = [16, 32],
+        sa2_msg_mlp_dims_per_scale: list[list[int]] = [[64, 128], [64, 128]],
+        # Decoder Feature Propagation settings.
         fp_k: int = 3,
-        fp2_mlp_dims: list[int] = None,  # type: ignore[assignment]
-        fp1_mlp_dims: list[int] = None,  # type: ignore[assignment]
+        fp1_mlp_dims: list[int] = [128, 128],  
+        fp2_mlp_dims: list[int] = [128, 128],  
         # Classifier
-        head_mlp_dims: list[int] = None,  # type: ignore[assignment]
+        head_mlp_dims: list[int] = [128, 64],  
     ) -> None:
         super().__init__()
         if in_channels < 3:
             raise ValueError(f"in_channels must be >= 3 (xyz + extras), got {in_channels}")
         if num_part_classes < 1:
             raise ValueError(f"num_part_classes must be >= 1, got {num_part_classes}")
-
-        # Default dims (kept small and configurable).
-        sa1_fine_mlp_dims = [32, 64] if sa1_fine_mlp_dims is None else sa1_fine_mlp_dims
-        sa1_coarse_mlp_dims = (
-            [32, 64] if sa1_coarse_mlp_dims is None else sa1_coarse_mlp_dims
-        )
-        sa2_fine_mlp_dims = [64, 128] if sa2_fine_mlp_dims is None else sa2_fine_mlp_dims
-        sa2_coarse_mlp_dims = (
-            [64, 128] if sa2_coarse_mlp_dims is None else sa2_coarse_mlp_dims
-        )
-
-        fp2_mlp_dims = [128, 128] if fp2_mlp_dims is None else fp2_mlp_dims
-        fp1_mlp_dims = [128, 128] if fp1_mlp_dims is None else fp1_mlp_dims
-        head_mlp_dims = [128, 64] if head_mlp_dims is None else head_mlp_dims
 
         self.sa_aggregation = sa_aggregation
 
@@ -117,20 +103,14 @@ class PointNetPPPartSeg(nn.Module):
                 fused_dim=sa1_fused_dim,
             )
         else:
-            r1 = sa1_msg_radii if sa1_msg_radii is not None else [0.2, 0.4]
-            k1 = sa1_msg_max_neighbors if sa1_msg_max_neighbors is not None else [16, 32]
-            m1 = (
-                sa1_msg_mlp_dims_per_scale
-                if sa1_msg_mlp_dims_per_scale is not None
-                else [[32, 64], [32, 64]]
-            )
+            
             self.sa1 = SetAbstraction(
                 in_channels=in_channels,
                 npoint=sa1_npoint,
                 aggregation="multiscale",
-                msg_radii=r1,
-                msg_max_neighbors=k1,
-                msg_mlp_dims_per_scale=m1,
+                msg_radii=sa1_msg_radii,
+                msg_max_neighbors=sa1_msg_max_neighbors,
+                msg_mlp_dims_per_scale=sa1_msg_mlp_dims_per_scale,
             )
 
         sa2_in = 3 + self.sa1.out_channels
@@ -149,36 +129,30 @@ class PointNetPPPartSeg(nn.Module):
                 fused_dim=sa2_fused_dim,
             )
         else:
-            r2 = sa2_msg_radii if sa2_msg_radii is not None else [0.4, 0.8]
-            k2 = sa2_msg_max_neighbors if sa2_msg_max_neighbors is not None else [16, 32]
-            m2 = (
-                sa2_msg_mlp_dims_per_scale
-                if sa2_msg_mlp_dims_per_scale is not None
-                else [[64, 128], [64, 128]]
-            )
+
             self.sa2 = SetAbstraction(
                 in_channels=sa2_in,
                 npoint=sa2_npoint,
                 aggregation="multiscale",
-                msg_radii=r2,
-                msg_max_neighbors=k2,
-                msg_mlp_dims_per_scale=m2,
+                msg_radii=sa2_msg_radii,
+                msg_max_neighbors=sa2_msg_max_neighbors,
+                msg_mlp_dims_per_scale=sa2_msg_mlp_dims_per_scale,
             )
 
         # Decoder.
         # FP2: from SA2 (coarse) to SA1 resolution, concat with SA1 features.
-        fp2_in_channels = self.sa2.out_channels + self.sa1.out_channels
-        self.fp2 = FeaturePropagation(
-            in_channels=fp2_in_channels,
-            k=fp_k,
-            mlp_dims=fp2_mlp_dims,
-        )
-        # FP1: from SA1 to original points, concat with input skip features.
-        fp1_in_channels = fp2_mlp_dims[-1] + in_channels
+        fp1_in_channels = self.sa2.out_channels + self.sa1.out_channels
         self.fp1 = FeaturePropagation(
             in_channels=fp1_in_channels,
             k=fp_k,
             mlp_dims=fp1_mlp_dims,
+        )
+        # FP1: from SA1 to original points, concat with input skip features.
+        fp2_in_channels = fp2_mlp_dims[-1] + in_channels
+        self.fp2 = FeaturePropagation(
+            in_channels=fp2_in_channels,
+            k=fp_k,
+            mlp_dims=fp2_mlp_dims,
         )
 
         # Optional category embedding.
@@ -229,16 +203,16 @@ class PointNetPPPartSeg(nn.Module):
         # Encoder: SA2
         xyz2, feats2 = self.sa2(point_tensor1)
 
-        # Decoder: FP2 to xyz1
-        feats1_up = self.fp2(
+        # Decoder: SA1&SA2 to xyz1
+        feats1_up = self.fp1(
             xyz_coarse=xyz2,
             feats_coarse=feats2,
             xyz_fine=xyz1,
             feats_fine_skip=feats1,
         )
 
-        # Decoder: FP1 to original xyz0
-        feats0_up = self.fp1(
+        # Decoder: feats1_up to original xyz0
+        feats0_up = self.fp2(
             xyz_coarse=xyz1,
             feats_coarse=feats1_up,
             xyz_fine=xyz0,

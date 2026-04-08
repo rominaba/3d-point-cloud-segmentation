@@ -68,8 +68,8 @@ def main() -> None:
         "--sa-aggregation",
         type=str,
         choices=("mrg", "msg"),
-        default="multiresolution",
-        help="Set abstraction local features: MRG (multiresolution) or MSG (multiscale).",
+        default="msg",
+        help="Set abstraction local features: mrg (multiresolution) or msg (multiscale).",
     )
     args = parser.parse_args()
     sa_aggregation = {"mrg": "multiresolution", "msg": "multiscale"}[args.sa_aggregation]
