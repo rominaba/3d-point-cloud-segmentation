@@ -78,7 +78,7 @@ class FeaturePropagation(nn.Module):
 
         # Inverse-distance weights (normalized).
         eps = 1e-10
-        w = 1.0 / (dist_sel + eps)
+        w = 1.0 / (dist_sel + eps) # TODO Try ^2
         w = w / w.sum(dim=-1, keepdim=True)
 
         # Gather coarse features: (B, Nf, k, Cc)
@@ -92,10 +92,7 @@ class FeaturePropagation(nn.Module):
             if feats_fine_skip is not None
             else feats_interp
         )
-        if feats_cat.size(-1) != self.in_channels:
-            raise ValueError(
-                f"expected concatenated features C={self.in_channels}, got {feats_cat.size(-1)}"
-            )
+        
 
         return self.mlp(feats_cat)
 

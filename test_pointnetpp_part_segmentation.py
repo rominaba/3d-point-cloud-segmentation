@@ -32,22 +32,22 @@ def main() -> None:
         default="mrg",
         help="Set abstraction local features: MRG (multiresolution) or MSG (multiscale).",
     )
+    parser.add_argument(
+        "--no-visualization",
+        action="store_true",
+        help="Skip saving one comparison PNG per object category under --visualize-dir.",
+    )
+    parser.add_argument(
+        "--visualize-dir",
+        type=str,
+        default="visuals",
+        help="Directory for part-segmentation comparison images (when visualization is enabled).",
+    )
     args = parser.parse_args()
 
     device = choose_device(logger)
-    checkpoint = torch.load(args.checkpoint, map_location=device)
-
-    # Prefer checkpoint settings if they exist
-    use_normals = checkpoint.get("use_normals", args.use_normals)
-    use_category_conditioning = checkpoint.get(
-        "use_category_conditioning", args.use_category_conditioning
-    )
-    category_embed_dim = checkpoint.get("category_embed_dim", args.category_embed_dim)
-    num_part_classes = checkpoint.get("num_part_classes", args.num_part_classes)
-    sa_aggregation = checkpoint.get(
-        "sa_aggregation",
-        {"mrg": "multiresolution", "msg": "multiscale"}[args.sa_aggregation],
-    )
+    ckpt = torch.load(args.checkpoint, map_location=device)
+    use_normals = bool(ckpt.get("use_normals", args.use_normals))
 
     category_mapping = load_category_mapping(args.data_root)
     _train_list, _val_list, test_list = load_splits(args.data_root)
@@ -64,11 +64,21 @@ def main() -> None:
         test_dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers
     )
 
-    in_channels = checkpoint.get("in_channels", 6 if use_normals else 3)
-    num_categories = checkpoint.get(
-        "num_categories",
-        len(test_dataset.category_to_idx) if use_category_conditioning else None,
+    in_channels = int(ckpt["in_channels"])
+    num_part_classes = int(ckpt["num_part_classes"])
+    use_category_conditioning = bool(
+        ckpt.get("use_category_conditioning", args.use_category_conditioning)
     )
+    num_categories = int(ckpt.get("num_categories", len(test_dataset.category_to_idx)))
+    category_embed_dim = int(ckpt.get("category_embed_dim", args.category_embed_dim))
+
+    sa_aggregation = ckpt.get(
+        "sa_aggregation",
+        {"mrg": "multiresolution", "msg": "multiscale"}[args.sa_aggregation],
+    )
+
+    logger.info(f"Testing {args.checkpoint}...")
+    logger.info(f"Set Abstraction Grouping Method: {sa_aggregation}")
 
     model = PointNetPPPartSeg(
         in_channels=in_channels,
@@ -78,10 +88,10 @@ def main() -> None:
         sa_aggregation=sa_aggregation,
     ).to(device)
 
-    model.load_state_dict(checkpoint["model_state_dict"])
+    model.load_state_dict(ckpt["model_state_dict"])
     model.eval()
 
-    class_idx_to_cat = {idx: cat for cat, idx in test_dataset.category_to_idx.items()}
+    class_idx_to_cat = test_dataset.idx_to_category
 
     metrics = evaluate_partseg(
         model=model,
@@ -91,6 +101,8 @@ def main() -> None:
         cat_to_parts=SEG_CLASSES,
         loss_fn=None,
         use_category_conditioning=use_category_conditioning,
+        save_visualizations=not args.no_visualization,
+        visualize_dir=args.visualize_dir,
     )
 
     for cat, miou in metrics["per_category_miou"].items():

@@ -1,6 +1,10 @@
 from __future__ import annotations
 from collections import defaultdict
+from pathlib import Path
+
 import torch
+
+from src.visualize import visualize_part_seg_comparison
 
 SEG_CLASSES = {
     "Airplane": [0, 1, 2, 3],
@@ -52,45 +56,6 @@ def compute_instance_miou(pred_labels, true_labels, part_ids):
 
 @torch.no_grad()
 def evaluate_partseg(
-    model,
-    loader,
-    device,
-    use_category_conditioning: bool,
-    class_idx_to_cat: dict[int, str],
-    cat_to_parts: dict[str, list[int]],
-    loss_fn=None,
-):
-    """
-    Compute mIoU for one object instance.
-
-    Args:
-        pred_labels: (N,) predicted part labels
-        true_labels: (N,) ground-truth part labels
-        part_ids: valid part ids for this shape category
-
-    Returns:
-        float mIoU for this instance
-    """
-    part_ious: list[float] = []
-
-    for part_id in part_ids:
-        pred_mask = pred_labels == part_id
-        true_mask = true_labels == part_id
-
-        intersection = (pred_mask & true_mask).sum().item()
-        union = (pred_mask | true_mask).sum().item()
-
-        # if a part is absent in both prediction and ground truth, count IoU as 1
-        if union == 0:
-            part_ious.append(1.0)
-        else:
-            part_ious.append(intersection / union)
-
-    return sum(part_ious) / len(part_ious)
-
-
-@torch.no_grad()
-def evaluate_partseg(
     *,
     model: torch.nn.Module,
     loader,
@@ -99,6 +64,8 @@ def evaluate_partseg(
     cat_to_parts: dict[str, list[int]] | None = None,
     loss_fn=None,
     use_category_conditioning: bool = False,
+    save_visualizations: bool = False,
+    visualize_dir: str = "visuals",
 ) -> dict:
     """
     Evaluate part segmentation model.
@@ -118,6 +85,8 @@ def evaluate_partseg(
         cat_to_parts: category to valid part ids
         loss_fn: optional loss function
         use_category_conditioning: whether model expects class labels too
+        save_visualizations: if True, save one comparison PNG per object category
+        visualize_dir: output directory when save_visualizations is True
 
     Returns:
         dict with evaluation metrics
@@ -140,6 +109,11 @@ def evaluate_partseg(
     total_loss = 0.0
     num_batches = 0
 
+    saved_viz_categories: set[str] | None = set() if save_visualizations else None
+    if save_visualizations:
+        Path(visualize_dir).mkdir(parents=True, exist_ok=True)
+    num_categories_for_viz = len(class_idx_to_cat)
+
     for batch in loader:
         if len(batch) != 3:
             raise ValueError(
@@ -160,6 +134,27 @@ def evaluate_partseg(
             raise ValueError(f"Expected logits shape (B, N, num_parts), got {tuple(logits.shape)}")
 
         pred = logits.argmax(dim=-1)
+
+        if saved_viz_categories is not None and len(saved_viz_categories) < num_categories_for_viz:
+            out_dir = Path(visualize_dir)
+            for b in range(points.size(0)):
+                if len(saved_viz_categories) >= num_categories_for_viz:
+                    break
+                cat_idx = int(class_labels[b].item())
+                cat_name = class_idx_to_cat[cat_idx]
+                if cat_name in saved_viz_categories:
+                    continue
+                pts = points[b].detach().cpu().numpy()[:, :3]
+                pred_np = pred[b].detach().cpu().numpy()
+                gt_np = seg_labels[b].detach().cpu().numpy()
+                visualize_part_seg_comparison(
+                    pts,
+                    pred_np,
+                    gt_np,
+                    title=cat_name,
+                    save_path=str(out_dir / f"{cat_name}_example.png"),
+                )
+                saved_viz_categories.add(cat_name)
 
         if loss_fn is not None:
             loss = loss_fn(logits.reshape(-1, logits.size(-1)), seg_labels.reshape(-1))

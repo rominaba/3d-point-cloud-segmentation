@@ -100,7 +100,7 @@ def farthest_point_sample(
 
 def index_points(points: torch.Tensor, idx: torch.Tensor) -> torch.Tensor:
     """
-    Gather points along the middle dimension.
+    Returns the certoids for each batch given the indices.
 
     Args:
         points: (B, N, C)

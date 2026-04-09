@@ -43,10 +43,10 @@ class SetAbstraction(nn.Module):
         coarse_npoint: int | None = None,
         fine_radius: float = 0.2,
         fine_max_neighbors: int = 16,
-        fine_mlp_dims: list[int] | None = None,
+        fine_mlp_dims: list[int] = [32, 64],
         coarse_radius: float = 0.4,
         coarse_max_neighbors: int = 32,
-        coarse_mlp_dims: list[int] | None = None,
+        coarse_mlp_dims: list[int] = [32, 64],
         fused_dim: int | None = None,
         # multiscale (MSG)
         msg_radii: list[float] | None = None,
@@ -70,8 +70,7 @@ class SetAbstraction(nn.Module):
                 raise ValueError("coarse_npoint is required when aggregation='multiresolution'")
             if coarse_npoint < 1:
                 raise ValueError(f"coarse_npoint must be >= 1, got {coarse_npoint}")
-            fine_mlp_dims = [32, 64] if fine_mlp_dims is None else fine_mlp_dims
-            coarse_mlp_dims = [32, 64] if coarse_mlp_dims is None else coarse_mlp_dims
+
             self.coarse_npoint = coarse_npoint
             self.mrg = MultiResolutionPointNetLocal(
                 in_channels=in_channels,
@@ -143,6 +142,7 @@ class SetAbstraction(nn.Module):
             fps_idx = farthest_point_sample(
                 x, self.npoint, deterministic_start=self.deterministic_start
             )
+            # the centroid points for each batch
             new_xyz = index_points(x[..., :3], fps_idx)
             fused, _ = self.msg(x, centroid_xyz=new_xyz)
         
