@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
+from datetime import datetime
+import matplotlib.pyplot as plt
 
 import torch
 from torch import nn
@@ -11,43 +13,11 @@ from src.config import BATCH_SIZE, DATA_ROOT, NUM_POINTS, USE_NORMALS
 from src.dataset import ShapeNetPartDataset, load_category_mapping, load_splits
 from src.pointnetpp.part_segmentation import PointNetPPPartSeg
 from src.utils.utils import get_logger, choose_device, set_seed, collect_garbage
-from datetime import datetime
+from src.utils.partseg_metrics import evaluate_partseg, SEG_CLASSES
 
 current_time = datetime.now().strftime("%Y-%m-%d-%H-%M")
 set_seed()
-logger = get_logger("train_pointnetpp_part_segmentation")
-
-def evaluate(
-    model: nn.Module,
-    loader: DataLoader,
-    device: torch.device,
-    use_category_conditioning: bool,
-) -> tuple[float, float]:
-    model.eval()
-    loss_fn = nn.CrossEntropyLoss()
-    total_loss = 0.0
-    total_correct = 0
-    total_points = 0
-
-    with torch.no_grad():
-        for points, class_labels, seg_labels in loader:
-            points = points.to(device)
-            class_labels = class_labels.to(device)
-            seg_labels = seg_labels.to(device)
-
-            logits = (
-                model(points, class_labels) if use_category_conditioning else model(points)
-            )
-            loss = loss_fn(logits.reshape(-1, logits.size(-1)), seg_labels.reshape(-1))
-            total_loss += loss.item() * points.size(0)
-
-            pred = logits.argmax(dim=-1)
-            total_correct += (pred == seg_labels).sum().item()
-            total_points += seg_labels.numel()
-
-    mean_loss = total_loss / max(len(loader.dataset), 1)
-    point_acc = total_correct / max(total_points, 1)
-    return mean_loss, point_acc
+logger = get_logger("train_pointnetpp_part_segmentation", write_to_file=True)
 
 
 def main() -> None:
@@ -64,12 +34,13 @@ def main() -> None:
     parser.add_argument("--use-category-conditioning", action="store_true")
     parser.add_argument("--category-embed-dim", type=int, default=16)
     parser.add_argument("--save-dir", type=str, default="checkpoints")
+    parser.add_argument("--graph-dir", type=str, default="graphs")
     parser.add_argument(
         "--sa-aggregation",
         type=str,
         choices=("mrg", "msg"),
-        default="msg",
-        help="Set abstraction local features: mrg (multiresolution) or msg (multiscale).",
+        default="mrg",
+        help="Set abstraction local features: MRG (multiresolution) or MSG (multiscale).",
     )
     args = parser.parse_args()
     sa_aggregation = {"mrg": "multiresolution", "msg": "multiscale"}[args.sa_aggregation]
@@ -113,15 +84,25 @@ def main() -> None:
     loss_fn = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
 
-    best_val_acc = -1.0
+    class_idx_to_cat = train_dataset.idx_to_category
+    
+    best_accuracy = -1.0
+    best_class_avg_miou = -1.0
+    best_instance_avg_miou = -1.0
+
     save_dir = Path(args.save_dir)
     save_dir.mkdir(parents=True, exist_ok=True)
     save_path = save_dir / f"pointnetpp-part-segmentation-with-{sa_aggregation}-{current_time}.pt"
-    
+
+    train_acc_history = []
+    val_acc_history = []
+    val_class_avg_miou_history = []
+    val_instance_avg_miou_history = []
 
     for epoch in range(1, args.epochs + 1):
         collect_garbage(device)
         model.train()
+
         running_loss = 0.0
         running_correct = 0
         total_points = 0
@@ -137,28 +118,52 @@ def main() -> None:
                 if args.use_category_conditioning
                 else model(points)
             )
+
             loss = loss_fn(logits.reshape(-1, logits.size(-1)), seg_labels.reshape(-1))
             loss.backward()
             optimizer.step()
-
             running_loss += loss.item() * points.size(0)
+
             pred = logits.argmax(dim=-1)
             running_correct += (pred == seg_labels).sum().item()
             total_points += seg_labels.numel()
 
         train_loss = running_loss / max(len(train_loader.dataset), 1)
         train_point_acc = running_correct / max(total_points, 1)
-        val_loss, val_point_acc = evaluate(
-            model, val_loader, device, args.use_category_conditioning
-        )
-        logger.info(
-            f"Epoch {epoch:03d}/{args.epochs} | "
-            f"train_loss={train_loss:.4f} train_point_acc={train_point_acc:.4f} | "
-            f"val_loss={val_loss:.4f} val_point_acc={val_point_acc:.4f}"
+
+        metrics = evaluate_partseg(
+            model=model,
+            loader=val_loader,
+            device=device,
+            class_idx_to_cat=class_idx_to_cat,
+            cat_to_parts=SEG_CLASSES,
+            loss_fn=loss_fn,
+            use_category_conditioning=args.use_category_conditioning,
         )
 
-        if val_point_acc > best_val_acc:
-            best_val_acc = val_point_acc
+        train_acc_history.append(train_point_acc)
+        val_acc_history.append(metrics["accuracy"])
+        val_class_avg_miou_history.append(metrics["class_avg_miou"])
+        val_instance_avg_miou_history.append(metrics["instance_avg_miou"])
+
+        logger.info(f"Epoch {epoch} ({epoch}/{args.epochs}):")
+        logger.info(f"Train loss is: {train_loss:.5f}")
+        logger.info(f"Train accuracy is: {train_point_acc:.5f}")
+
+        for cat, miou in metrics["per_category_miou"].items():
+            logger.info(f"eval mIoU of {cat:<15} {miou:.6f}")
+
+        logger.info(
+            f"Epoch {epoch} test Accuracy: {metrics['accuracy']:.6f}  "
+            f"Class avg mIOU: {metrics['class_avg_miou']:.6f}   "
+            f"Instance avg mIOU: {metrics['instance_avg_miou']:.6f}"
+        )
+
+        if metrics["loss"] is not None:
+            logger.info(f"Validation loss is: {metrics['loss']:.5f}")
+
+        if metrics["accuracy"] > best_accuracy:
+            best_accuracy = metrics["accuracy"]
             torch.save(
                 {
                     "model_state_dict": model.state_dict(),
@@ -174,6 +179,47 @@ def main() -> None:
             )
             logger.info(f"Saved best checkpoint to {save_path}")
 
+        best_class_avg_miou = max(best_class_avg_miou, metrics["class_avg_miou"])
+        best_instance_avg_miou = max(best_instance_avg_miou, metrics["instance_avg_miou"])
+
+        logger.info(f"Best accuracy is: {best_accuracy:.5f}")
+        logger.info(f"Best class avg mIOU is: {best_class_avg_miou:.5f}")
+        logger.info(f"Best instance avg mIOU is: {best_instance_avg_miou:.5f}")
+
+    logger.info(f"Training complete. Best checkpoint saved at: {save_path}")
+    
+    graph_dir = Path(args.graph_dir)
+    graph_dir.mkdir(parents=True, exist_ok=True)
+    epochs = list(range(1, args.epochs + 1))
+
+    # Graph 1: train vs validation accuracy
+    plt.figure(figsize=(8, 5))
+    plt.plot(epochs, train_acc_history, marker="o", label="Train Accuracy")
+    plt.plot(epochs, val_acc_history, marker="o", label="Validation/Test Accuracy")
+    plt.xlabel("Epoch")
+    plt.ylabel("Accuracy")
+    plt.title("PointNet++ Part Segmentation Accuracy vs Epoch")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig(graph_dir / f"accuracy_vs_epoch_{sa_aggregation}_{current_time}.png")
+    plt.close()
+
+    # Graph 2: validation/test mIoU metrics
+    plt.figure(figsize=(8, 5))
+    plt.plot(epochs, val_class_avg_miou_history, marker="o", label="Class Avg mIoU")
+    plt.plot(epochs, val_instance_avg_miou_history, marker="o", label="Instance Avg mIoU")
+    plt.xlabel("Epoch")
+    plt.ylabel("mIoU")
+    plt.title("PointNet++ Part Segmentation mIoU vs Epoch")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig(graph_dir / f"miou_vs_epoch_{sa_aggregation}_{current_time}.png")
+    plt.close()
+
+    logger.info(f"Saved accuracy plot to {graph_dir / f'accuracy_vs_epoch_{sa_aggregation}_{current_time}.png'}")
+    logger.info(f"Saved mIoU plot to {graph_dir / f'miou_vs_epoch_{sa_aggregation}_{current_time}.png'}")
 
 if __name__ == "__main__":
     main()
