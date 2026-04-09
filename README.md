@@ -73,6 +73,7 @@ Default locations of outputs are as follows:
 - Model checkpoints can be found in `/checkpoints`
 - Training graphs can be found in `/graphs`
 - 3d point cloud plots can be found in `/visuals`
+    - Visuals are generated after part segmentation inference, and each visual shows a predicted vs ground truth side-by-side comparison of a point cloud, with points colour-coded by part label.
 
 ## Baselines
 For training and evaluation of the baseline PointNet and PointNet++ architectures, the following repo of a PyTorch implementation was used:
