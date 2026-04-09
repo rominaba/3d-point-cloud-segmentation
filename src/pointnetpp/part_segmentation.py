@@ -45,7 +45,7 @@ class PointNetPPPartSeg(nn.Module):
         # Optional category conditioning (PointNet++ part_seg style).
         num_categories: int | None = None,
         category_embed_dim: int = 0,
-        sa_aggregation: SaAggregation = "multiresolution",
+        sa_aggregation: SaAggregation = "multiscale",
         # Abstraction settings for MultiResolution
         sa1_npoint: int = 256,
         sa1_coarse_npoint: int = 128,

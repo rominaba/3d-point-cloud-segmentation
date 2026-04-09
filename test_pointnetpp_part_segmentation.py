@@ -46,6 +46,7 @@ def main() -> None:
     args = parser.parse_args()
 
     device = choose_device(logger)
+    logger.info(f"Loading checkpoint from {args.checkpoint}...")
     ckpt = torch.load(args.checkpoint, map_location=device)
     use_normals = bool(ckpt.get("use_normals", args.use_normals))
 

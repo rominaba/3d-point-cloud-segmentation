@@ -1,0 +1,21 @@
+2026-04-06-18:32 - test_pointnetpp_part_segmentation - INFO - Chosen device: mps
+2026-04-06-18:33 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Airplane        0.710077
+2026-04-06-18:33 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Bag             0.337445
+2026-04-06-18:33 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Cap             0.337702
+2026-04-06-18:33 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Car             0.639916
+2026-04-06-18:33 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Chair           0.837442
+2026-04-06-18:33 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Earphone        0.420687
+2026-04-06-18:33 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Guitar          0.872927
+2026-04-06-18:33 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Knife           0.674263
+2026-04-06-18:33 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Lamp            0.706825
+2026-04-06-18:33 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Laptop          0.882844
+2026-04-06-18:33 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Motorbike       0.283433
+2026-04-06-18:33 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Mug             0.828908
+2026-04-06-18:33 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Pistol          0.583258
+2026-04-06-18:33 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Rocket          0.031908
+2026-04-06-18:33 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Skateboard      0.500221
+2026-04-06-18:33 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Table           0.733107
+2026-04-06-18:33 - test_pointnetpp_part_segmentation - INFO - Accuracy is: 0.84012
+2026-04-06-18:33 - test_pointnetpp_part_segmentation - INFO - Class avg accuracy is: 0.59125
+2026-04-06-18:33 - test_pointnetpp_part_segmentation - INFO - Class avg mIOU is: 0.58631
+2026-04-06-18:33 - test_pointnetpp_part_segmentation - INFO - Instance avg mIOU is: 0.73921
