@@ -93,8 +93,7 @@ def evaluate_partseg(
         num_votes: test-time augmentation — run forward this many times and average
             logits before argmax (same protocol as yanx27 Pointnet2 test_partseg).
         vote_jitter_std: if > 0, add Gaussian noise (std on XYZ) for votes after the
-            first so averaged logits differ under deterministic models;0 matches the
-            reference repo (repeated identical forwards).
+            first so averaged logits differ under deterministic models; if 0 repeated identical forwards.
 
     Returns:
         dict with evaluation metrics, including:
