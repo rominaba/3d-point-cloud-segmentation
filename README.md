@@ -39,6 +39,8 @@ For testing a trained model, run the following command `python test_pointnetpp_c
 - `--use-normals` (Flag; if set, uses surface normals as additional input features ie. 6 input channels instead of 3)
 - `--batch-size` (Batch size)
 - `--num-workers` (Number of DataLoader workers)
+- `--num-votes` (Average logits over this many forwards (use 3 to mirror PointNet++ test voting))
+- `--vote-jitter-std` (Gaussian noise std on XYZ for votes after the first;0 = identical passes)
 
 ### PointNet++ Part Segmentation Task
 #### Training
@@ -72,6 +74,8 @@ For testing a trained model, run the following command `python test_pointnetpp_p
 - `--sa-aggregation` (Set abstraction local features grouping method: `mrg` (multiresolution) or `msg` (multiscale))
 - `--no-visualization` (Flag; if set, skip saving one comparison PNG per object category under --visualize-dir.)
 - `--visualize-dir` (Directory to save part-segmentation comparison images (when visualization is enabled).)
+- `--num-votes` (Test-time votes: average logits over this many forwards (yanx27 test_partseg default: 3))
+- `--vote-jitter-std`(Standard deviation of Gaussian noise on XYZ for votes after the first;0 repeats identical passes)
 
 ### Outputs
 Default locations of outputs are as follows:
