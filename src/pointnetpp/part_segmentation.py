@@ -47,7 +47,7 @@ class PointNetPPPartSeg(nn.Module):
         category_embed_dim: int = 0,
         sa_aggregation: SaAggregation = "multiscale",
         # Abstraction settings for MultiResolution
-        sa1_npoint: int = 256,
+        sa1_npoint: int = 512,
         sa1_coarse_npoint: int = 128,
         sa1_fine_radius: float = 0.2,
         sa1_fine_max_neighbors: int = 16,
@@ -56,7 +56,7 @@ class PointNetPPPartSeg(nn.Module):
         sa1_coarse_max_neighbors: int = 32,
         sa1_coarse_mlp_dims: list[int] = [32, 64], 
         sa1_fused_dim: int = 128,
-        sa2_npoint: int = 64,
+        sa2_npoint: int = 128,
         sa2_coarse_npoint: int = 32,
         sa2_fine_radius: float = 0.4,
         sa2_fine_max_neighbors: int = 16,
@@ -66,18 +66,19 @@ class PointNetPPPartSeg(nn.Module):
         sa2_coarse_mlp_dims: list[int] = [64, 128],  
         sa2_fused_dim: int = 256,
         # Abstraction settings for MultiScale
-        sa1_msg_radii: list[float] = [0.2, 0.4],
-        sa1_msg_max_neighbors: list[int] = [16, 32],
-        sa1_msg_mlp_dims_per_scale: list[list[int]] = [[32, 64], [32, 64]],
+        sa1_msg_radii: list[float] = [0.1, 0.2, 0.4],
+        sa1_msg_max_neighbors: list[int] = [32, 64, 128],
+        sa1_msg_mlp_dims_per_scale: list[list[int]] = [[32, 32, 64], [64, 64, 128], [64, 96, 128]],
         sa2_msg_radii: list[float] = [0.4, 0.8],
-        sa2_msg_max_neighbors: list[int] = [16, 32],
-        sa2_msg_mlp_dims_per_scale: list[list[int]] = [[64, 128], [64, 128]],
+        sa2_msg_max_neighbors: list[int] = [64, 128],
+        sa2_msg_mlp_dims_per_scale: list[list[int]] = [[128, 128, 256], [128, 196, 256]],
         # Decoder Feature Propagation settings.
         fp_k: int = 3,
         fp1_mlp_dims: list[int] = [128, 128],  
         fp2_mlp_dims: list[int] = [128, 128],  
         # Classifier
-        head_mlp_dims: list[int] = [128, 64],  
+        head_mlp_dims: list[int] = [128, 64],
+        **kwargs,
     ) -> None:
         super().__init__()
         if in_channels < 3:

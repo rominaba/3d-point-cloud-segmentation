@@ -1,0 +1,29 @@
+2026-04-10-15:25 - test_pointnetpp_part_segmentation - INFO - Chosen device: mps
+2026-04-10-15:25 - test_pointnetpp_part_segmentation - INFO - Loading checkpoint from checkpoints/pointnetpp-part-segmentation-with-multiscale-2026-04-08-22-35.pt...
+2026-04-10-15:25 - test_pointnetpp_part_segmentation - INFO - Testing checkpoints/pointnetpp-part-segmentation-with-multiscale-2026-04-08-22-35.pt...
+2026-04-10-15:25 - test_pointnetpp_part_segmentation - INFO - Set Abstraction Grouping Method: multiscale
+2026-04-10-15:25 - test_pointnetpp_part_segmentation - INFO - Test-time voting: num_votes=3, vote_jitter_std=0.01
+2026-04-10-15:31 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Airplane        0.752313
+2026-04-10-15:31 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Bag             0.602314
+2026-04-10-15:31 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Cap             0.625372
+2026-04-10-15:31 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Car             0.688251
+2026-04-10-15:31 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Chair           0.873424
+2026-04-10-15:31 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Earphone        0.594186
+2026-04-10-15:31 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Guitar          0.870379
+2026-04-10-15:31 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Knife           0.779569
+2026-04-10-15:31 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Lamp            0.778488
+2026-04-10-15:31 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Laptop          0.902917
+2026-04-10-15:31 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Motorbike       0.318607
+2026-04-10-15:31 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Mug             0.871097
+2026-04-10-15:31 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Pistol          0.689718
+2026-04-10-15:31 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Rocket          0.298824
+2026-04-10-15:31 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Skateboard      0.689286
+2026-04-10-15:31 - test_pointnetpp_part_segmentation - INFO - eval mIoU of Table           0.765146
+2026-04-10-15:31 - test_pointnetpp_part_segmentation - INFO - Accuracy is: 0.89296
+2026-04-10-15:31 - test_pointnetpp_part_segmentation - INFO - Per-vote accuracies: [0.8941517022225122, 0.887664731210856, 0.8875556579462421]
+2026-04-10-15:31 - test_pointnetpp_part_segmentation - INFO - Accuracy std (over votes): 0.00378
+2026-04-10-15:31 - test_pointnetpp_part_segmentation - INFO - Accuracy std (over instances): 0.14473
+2026-04-10-15:31 - test_pointnetpp_part_segmentation - INFO - Accuracy std (over batches): 0.03733
+2026-04-10-15:31 - test_pointnetpp_part_segmentation - INFO - Class avg accuracy is: 0.70023
+2026-04-10-15:31 - test_pointnetpp_part_segmentation - INFO - Class avg mIOU is: 0.69374
+2026-04-10-15:31 - test_pointnetpp_part_segmentation - INFO - Instance avg mIOU is: 0.78484

@@ -39,7 +39,7 @@ def main() -> None:
         "--sa-aggregation",
         type=str,
         choices=("mrg", "msg"),
-        default="mrg",
+        default="msg",
         help="Set abstraction local features: MRG (multiresolution) or MSG (multiscale).",
     )
     args = parser.parse_args()
@@ -73,12 +73,16 @@ def main() -> None:
     )
 
     in_channels = 6 if args.use_normals else 3
+    
+    # Use to modify the model hyperparameters and architecture if needed
+    partseg_extra_kwargs = {}
     model = PointNetPPPartSeg(
         in_channels=in_channels,
         num_part_classes=args.num_part_classes,
         num_categories=(len(train_dataset.category_to_idx) if args.use_category_conditioning else None),
         category_embed_dim=(args.category_embed_dim if args.use_category_conditioning else 0),
         sa_aggregation=sa_aggregation,
+        **partseg_extra_kwargs,
     ).to(device)
 
     loss_fn = nn.CrossEntropyLoss()
@@ -158,6 +162,15 @@ def main() -> None:
             f"Class avg mIOU: {metrics['class_avg_miou']:.6f}   "
             f"Instance avg mIOU: {metrics['instance_avg_miou']:.6f}"
         )
+        logger.info(
+            f"Val accuracy standard deviation (over instances): {metrics['accuracy_std_over_instances']:.6f}  "
+            f"Val accuracy standard deviation (over batches): {metrics['accuracy_std_over_batches']:.6f}"
+        )
+        if len(metrics["per_vote_accuracy"]) > 1:
+            logger.info(
+                f"Val per-vote accuracies: {metrics['per_vote_accuracy']}  "
+                f"Val accuracy standard deviation (over votes): {metrics['accuracy_std_over_votes']:.6f}"
+            )
 
         if metrics["loss"] is not None:
             logger.info(f"Validation loss is: {metrics['loss']:.5f}")
@@ -174,6 +187,8 @@ def main() -> None:
                     "num_categories": len(train_dataset.category_to_idx),
                     "category_embed_dim": args.category_embed_dim,
                     "sa_aggregation": sa_aggregation,
+                    "pointnetpp_partseg_kwargs": partseg_extra_kwargs,
+                    **partseg_extra_kwargs,
                 },
                 save_path,
             )

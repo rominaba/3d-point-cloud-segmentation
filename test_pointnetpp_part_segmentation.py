@@ -43,6 +43,18 @@ def main() -> None:
         default="visuals",
         help="Directory for part-segmentation comparison images (when visualization is enabled).",
     )
+    parser.add_argument(
+        "--num-votes",
+        type=int,
+        default=3,
+        help="Test-time votes: average logits over this many forwards (yanx27 test_partseg default: 3).",
+    )
+    parser.add_argument(
+        "--vote-jitter-std",
+        type=float,
+        default=0.01,
+        help="Standard deviation of Gaussian noise on XYZ for votes after the first;0 repeats identical passes.",
+    )
     args = parser.parse_args()
 
     device = choose_device(logger)
@@ -65,29 +77,39 @@ def main() -> None:
         test_dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers
     )
 
-    in_channels = int(ckpt["in_channels"])
-    num_part_classes = int(ckpt["num_part_classes"])
     use_category_conditioning = bool(
         ckpt.get("use_category_conditioning", args.use_category_conditioning)
     )
-    num_categories = int(ckpt.get("num_categories", len(test_dataset.category_to_idx)))
-    category_embed_dim = int(ckpt.get("category_embed_dim", args.category_embed_dim))
 
-    sa_aggregation = ckpt.get(
-        "sa_aggregation",
-        {"mrg": "multiresolution", "msg": "multiscale"}[args.sa_aggregation],
+    # Training saves num_categories / category_embed_dim even when the model was built
+    # without category conditioning; only enable embedding when weights match.
+    ckpt_skip = frozenset(
+        {
+            "model_state_dict",
+            "use_normals",
+            "use_category_conditioning",
+            "pointnetpp_partseg_kwargs",
+        }
     )
+    model_kwargs = {k: v for k, v in ckpt.items() if k not in ckpt_skip}
+    if use_category_conditioning:
+        model_kwargs["num_categories"] = int(model_kwargs["num_categories"])
+        model_kwargs["category_embed_dim"] = int(
+            model_kwargs.get("category_embed_dim", args.category_embed_dim)
+        )
+    else:
+        model_kwargs["num_categories"] = None
+        model_kwargs["category_embed_dim"] = 0
 
     logger.info(f"Testing {args.checkpoint}...")
-    logger.info(f"Set Abstraction Grouping Method: {sa_aggregation}")
-
-    model = PointNetPPPartSeg(
-        in_channels=in_channels,
-        num_part_classes=num_part_classes,
-        num_categories=(num_categories if use_category_conditioning else None),
-        category_embed_dim=(category_embed_dim if use_category_conditioning else 0),
-        sa_aggregation=sa_aggregation,
-    ).to(device)
+    logger.info(
+        f"Set Abstraction Grouping Method: {ckpt['sa_aggregation']}"
+        f"use_category_conditioning={use_category_conditioning}"
+    )
+    logger.info(
+        f"Test-time voting: num_votes={args.num_votes}, vote_jitter_std={args.vote_jitter_std}"
+    )
+    model = PointNetPPPartSeg(**model_kwargs).to(device)
 
     model.load_state_dict(ckpt["model_state_dict"])
     model.eval()
@@ -104,12 +126,25 @@ def main() -> None:
         use_category_conditioning=use_category_conditioning,
         save_visualizations=not args.no_visualization,
         visualize_dir=args.visualize_dir,
+        num_votes=args.num_votes,
+        vote_jitter_std=args.vote_jitter_std,
     )
 
     for cat, miou in metrics["per_category_miou"].items():
         logger.info(f"eval mIoU of {cat:<15} {miou:.6f}")
 
     logger.info(f"Accuracy is: {metrics['accuracy']:.5f}")
+    if args.num_votes > 1:
+        logger.info(f"Per-vote accuracies: {metrics['per_vote_accuracy']}")
+        logger.info(
+            f"Accuracy standard deviation (over votes): {metrics['accuracy_std_over_votes']:.5f}"
+        )
+    logger.info(
+        f"Accuracy standard deviation (over instances): {metrics['accuracy_std_over_instances']:.5f}"
+    )
+    logger.info(
+        f"Accuracy standard deviation (over batches): {metrics['accuracy_std_over_batches']:.5f}"
+    )
     logger.info(f"Class avg accuracy is: {metrics['class_avg_accuracy']:.5f}")
     logger.info(f"Class avg mIOU is: {metrics['class_avg_miou']:.5f}")
     logger.info(f"Instance avg mIOU is: {metrics['instance_avg_miou']:.5f}")
