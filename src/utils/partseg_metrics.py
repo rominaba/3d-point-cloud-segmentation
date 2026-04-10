@@ -1,6 +1,7 @@
 from __future__ import annotations
 from collections import defaultdict
 from pathlib import Path
+import statistics
 
 import torch
 
@@ -66,6 +67,8 @@ def evaluate_partseg(
     use_category_conditioning: bool = False,
     save_visualizations: bool = False,
     visualize_dir: str = "visuals",
+    num_votes: int = 1,
+    vote_jitter_std: float = 0.0,
 ) -> dict:
     """
     Evaluate part segmentation model.
@@ -87,9 +90,21 @@ def evaluate_partseg(
         use_category_conditioning: whether model expects class labels too
         save_visualizations: if True, save one comparison PNG per object category
         visualize_dir: output directory when save_visualizations is True
+        num_votes: test-time augmentation — run forward this many times and average
+            logits before argmax (same protocol as yanx27 Pointnet2 test_partseg).
+        vote_jitter_std: if > 0, add Gaussian noise (std on XYZ) for votes after the
+            first so averaged logits differ under deterministic models; if 0 repeated identical forwards.
 
     Returns:
-        dict with evaluation metrics
+        dict with evaluation metrics, including:
+        - accuracy_std_over_instances: sample std of point accuracy per object (spread
+          across shapes in the evaluated split).
+        - accuracy_std_over_batches: sample std of mean point accuracy per batch
+          (spread across minibatches; depends on batch size and ordering).
+        - per_vote_accuracy: list of length num_votes — overall point accuracy if
+          only that vote were used (argmax on that pass's logits, no averaging).
+        - accuracy_std_over_votes: sample std of per_vote_accuracy (spread across
+          voting passes; 0 when num_votes < 2 or votes are identical).
     """
     if cat_to_parts is None:
         cat_to_parts = SEG_CLASSES
@@ -109,6 +124,12 @@ def evaluate_partseg(
     total_loss = 0.0
     num_batches = 0
 
+    batch_point_accs: list[float] = []
+    instance_point_accs: list[float] = []
+
+    vote_point_correct = [0 for _ in range(num_votes)]
+    vote_point_seen = [0 for _ in range(num_votes)]
+
     saved_viz_categories: set[str] | None = set() if save_visualizations else None
     if save_visualizations:
         Path(visualize_dir).mkdir(parents=True, exist_ok=True)
@@ -125,10 +146,25 @@ def evaluate_partseg(
         class_labels = class_labels.to(device)
         seg_labels = seg_labels.to(device)
 
-        if use_category_conditioning:
-            logits = model(points, class_labels)
-        else:
-            logits = model(points)
+        vote_pool: torch.Tensor | None = None
+        for v in range(num_votes):
+            pts = points
+            if vote_jitter_std > 0.0 and v > 0:
+                pts = points.clone()
+                noise = torch.randn_like(pts[..., :3], device=pts.device, dtype=pts.dtype)
+                pts[..., :3] = pts[..., :3] + noise * vote_jitter_std
+            if use_category_conditioning:
+                logits_v = model(pts, class_labels)
+            else:
+                logits_v = model(pts)
+            logits_v = logits_v.float()
+            pred_v = logits_v.argmax(dim=-1)
+            vote_point_correct[v] += (pred_v == seg_labels).sum().item()
+            vote_point_seen[v] += seg_labels.numel()
+            vote_pool = logits_v if vote_pool is None else vote_pool + logits_v
+
+        assert vote_pool is not None
+        logits = vote_pool / float(num_votes)
 
         if logits.dim() != 3:
             raise ValueError(f"Expected logits shape (B, N, num_parts), got {tuple(logits.shape)}")
@@ -162,9 +198,20 @@ def evaluate_partseg(
 
         num_batches += 1
 
+        batch_correct = (pred == seg_labels).sum().item()
+        batch_seen = seg_labels.numel()
+        if batch_seen > 0:
+            batch_point_accs.append(batch_correct / float(batch_seen))
+
         # update overall accuracy
-        total_correct += (pred == seg_labels).sum().item()
-        total_seen += seg_labels.numel()
+        total_correct += batch_correct
+        total_seen += batch_seen
+
+        for i in range(points.size(0)):
+            inst_correct = (pred[i] == seg_labels[i]).sum().item()
+            inst_n = int(seg_labels[i].numel())
+            if inst_n > 0:
+                instance_point_accs.append(inst_correct / float(inst_n))
 
         # update class avg accuracy totals
         for part_id in range(num_part_classes):
@@ -213,9 +260,29 @@ def evaluate_partseg(
 
     avg_loss = total_loss / num_batches if (loss_fn is not None and num_batches > 0) else None
 
+    def _stdev(xs: list[float]) -> float:
+        if len(xs) < 2:
+            return 0.0
+        return float(statistics.stdev(xs))
+
+    accuracy_std_over_instances = _stdev(instance_point_accs)
+    accuracy_std_over_batches = _stdev(batch_point_accs)
+
+    per_vote_accuracy: list[float] = []
+    for v in range(num_votes):
+        vs = vote_point_seen[v]
+        per_vote_accuracy.append(
+            float(vote_point_correct[v]) / float(vs) if vs > 0 else 0.0
+        )
+    accuracy_std_over_votes = _stdev(per_vote_accuracy) if num_votes > 1 else 0.0
+
     return {
         "loss": avg_loss,
         "accuracy": accuracy,
+        "per_vote_accuracy": per_vote_accuracy,
+        "accuracy_std_over_votes": accuracy_std_over_votes,
+        "accuracy_std_over_instances": accuracy_std_over_instances,
+        "accuracy_std_over_batches": accuracy_std_over_batches,
         "class_avg_accuracy": class_avg_accuracy,
         "class_avg_miou": class_avg_miou,
         "instance_avg_miou": instance_avg_miou,
