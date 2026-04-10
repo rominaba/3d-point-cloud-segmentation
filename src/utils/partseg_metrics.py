@@ -102,10 +102,10 @@ def evaluate_partseg(
           across shapes in the evaluated split).
         - accuracy_std_over_batches: sample std of mean point accuracy per batch
           (spread across minibatches; depends on batch size and ordering).
-        - per_vote_accuracy: list of length ``num_votes`` — overall point accuracy if
+        - per_vote_accuracy: list of length num_votes — overall point accuracy if
           only that vote were used (argmax on that pass's logits, no averaging).
-        - accuracy_std_over_votes: sample std of ``per_vote_accuracy`` (spread across
-          voting passes; 0 when ``num_votes < 2`` or votes are identical).
+        - accuracy_std_over_votes: sample std of per_vote_accuracy (spread across
+          voting passes; 0 when num_votes < 2 or votes are identical).
     """
     if cat_to_parts is None:
         cat_to_parts = SEG_CLASSES
