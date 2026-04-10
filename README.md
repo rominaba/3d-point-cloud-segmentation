@@ -55,6 +55,7 @@ For training, run the following command `python train_pointnetpp_part_segmentati
 - `--use-category-conditioning` (Flag; if set, conditions the model on the object category label)
 - `--category-embed-dim` (Embedding dimension for the category label - only used with `--use-category-conditioning`)
 - `--save-dir` (Directory to save model checkpoints)
+- `--graph-dir` (Directory to save graph outputs)
 - `--sa-aggregation` (Set abstraction local features grouping method: `mrg` (multiresolution) or `msg` (multiscale))
 
 #### Testing
@@ -65,7 +66,12 @@ For testing a trained model, run the following command `python test_pointnetpp_p
 - `--use-normals` (Flag; if set, uses surface normals as additional input features ie. 6 input channels instead of 3)
 - `--batch-size` (Batch size)
 - `--num-workers` (Number of DataLoader workers)
+- `--num-part-classes` (Total number of part classes, eg. 50 in ShapeNet Part dataset)
+- `--use-category-conditioning` (Flag; if set, conditions the model on the object category label)
+- `--category-embed-dim` (Embedding dimension for the category label - only used with `--use-category-conditioning`)
 - `--sa-aggregation` (Set abstraction local features grouping method: `mrg` (multiresolution) or `msg` (multiscale))
+- `--no-visualization` (Flag; if set, skip saving one comparison PNG per object category under --visualize-dir.)
+- `--visualize-dir` (Directory to save part-segmentation comparison images (when visualization is enabled).)
 
 ### Outputs
 Default locations of outputs are as follows:
