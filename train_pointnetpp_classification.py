@@ -88,10 +88,13 @@ def main() -> None:
 
     in_channels = 6 if args.use_normals else 3
     num_classes = len(train_dataset.category_to_idx)
+    # Use to modify the model hyperparameters and architecture if needed
+    partseg_extra_kwargs = {}
     model = PointNetPPClassifier(
         in_channels=in_channels,
         num_classes=num_classes,
         sa_aggregation=sa_aggregation,
+        **partseg_extra_kwargs,
     ).to(device)
 
     loss_fn = nn.CrossEntropyLoss()
@@ -140,6 +143,7 @@ def main() -> None:
                     "num_classes": num_classes,
                     "use_normals": args.use_normals,
                     "sa_aggregation": sa_aggregation,
+                    **partseg_extra_kwargs,
                 },
                 save_path,
             )
