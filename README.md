@@ -85,6 +85,26 @@ Default locations of outputs are as follows:
 - 3d point cloud plots can be found in `/visuals`
     - Visuals are generated after part segmentation inference, and each visual shows a predicted vs ground truth side-by-side comparison of a point cloud, with points colour-coded by part label.
 
+## Demo Notebook
+
+A demo notebook is provided in the `/notebooks` directory to showcase the full pipeline from loading a trained model to visualizing segmentation results.
+
+#### What the notebook does
+- Loads a trained PointNet++ checkpoint
+- Evaluates the model on the test set and reports performance metrics (accuracy, mIoU)
+- Selects one sample from each object category
+- Runs the model to generate predicted part labels
+- Visualizes predictions vs. ground truth using the same plotting utilities as the main codebase
+
+#### How to run
+1. Ensure the dataset is downloaded and placed in the correct `data/` directory.
+2. Make sure a trained checkpoint exists in `/checkpoints/`.
+3. Open the notebook from `/notebooks/` and run all cells sequentially.
+
+#### Notes
+- The notebook is designed as a lightweight demonstration and does not retrain the model.
+- It reuses existing dataset, model, and visualization code from `src/` to stay consistent with the main pipeline.
+
 ## Baselines
 For training and evaluation of the baseline PointNet and PointNet++ architectures, the following repo of a PyTorch implementation was used:
     https://github.com/yanx27/Pointnet_Pointnet2_pytorch
